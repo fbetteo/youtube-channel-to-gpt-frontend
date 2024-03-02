@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useRouter } from 'next/navigation';
 interface Assistant {
     id: string;
     name: string;
@@ -19,6 +19,9 @@ const Page: React.FC = () => {
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     const [selectedAssistant, setSelectedAssistant] = useState<string>('');
     const [threads, setThreads] = useState<Thread[]>([]);
+    const router = useRouter();
+    console.log(process.env.NEXT_PUBLIC_API_URL);
+
 
     useEffect(() => {
         axios.get<Assistant[]>(process.env.NEXT_PUBLIC_API_URL + '/assistants/1')
@@ -42,22 +45,27 @@ const Page: React.FC = () => {
             .catch(error => console.error('Error fetching threads', error));
     }, [selectedAssistant]);
 
-    const handleCreateAssistant = async () => {
-        // Replace with your API endpoint and request body as needed
-        try {
-            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/1/prueba_client', null, { params: { channel_id: "UCmqincDKps3syxvD4hbODSg" } });
-            console.log('Assistant created:', response.data);
-            // Handle successful creation (e.g., show a message, update state)
-        } catch (error) {
-            console.error('Error creating assistant', error);
-            // Handle error (e.g., show error message)
-        }
+    // const handleCreateAssistant = async () => {
+    //     // Replace with your API endpoint and request body as needed
+    //     try {
+    //         const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/1/prueba_client', null, { params: { channel_id: "UCmqincDKps3syxvD4hbODSg" } });
+    //         console.log('Assistant created:', response.data);
+    //         // Handle successful creation (e.g., show a message, update state)
+    //     } catch (error) {
+    //         console.error('Error creating assistant', error);
+    //         // Handle error (e.g., show error message)
+    //     }
+    // };
+
+    const redirectToCreateAssistantForm = () => {
+        router.push('/createAssistant'); // Use the path to your new form page
     };
 
     return (
         <div>
 
-            <button onClick={handleCreateAssistant}>Create Assistant</button>
+            <button onClick={redirectToCreateAssistantForm}>Create Assistant</button>
+
 
 
             <h1>Select an Assistant</h1>
