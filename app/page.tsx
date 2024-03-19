@@ -17,24 +17,26 @@ interface Thread {
 
 interface Message {
     id: number;
-    text: string;
-    sender: string; // You can expand this model based on your actual data
+    role: string;
+    text: string; // You can expand this model based on your actual data
 }
 
 // Sample data, replace with your data fetching logic
-const messagesData: Message[] = [
-    { id: 1, text: 'Hello there!', sender: 'User1' },
-    { id: 2, text: 'Hi, how are you?', sender: 'User2' },
-    // Add more messages for demonstration
-];
+// const messagesData: Message[] = [
+//     { id: 1, text: 'Hello there!', sender: 'User1' },
+//     { id: 2, text: 'Hi, how are you?', sender: 'User2' },
+//     // Add more messages for demonstration
+// ];
 
 
 
 const Page: React.FC = () => {
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     // const [selectedAssistant, setSelectedAssistant] = useState<string>('');
-    const [selectedOption, setSelectedOption] = useState({ id: '', name: '' });
+    const [selectedAssistant, setSelectedAssistant] = useState({ id: '', name: '' });
     const [threads, setThreads] = useState<Thread[]>([]);
+    const [selectedThread, setSelectedThread] = useState({ id: '' });
+    const [messages, setMessages] = useState<Message[]>([]);
     const router = useRouter();
     console.log(process.env.NEXT_PUBLIC_API_URL);
 
@@ -62,14 +64,28 @@ const Page: React.FC = () => {
     // }, [selectedAssistant]);
 
     useEffect(() => {
-        if (!selectedOption.id) {
+        if (!selectedAssistant.id) {
             setThreads([]);
             return;
         }
-        axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + '/threads/1/' + selectedOption.name)
+        axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + '/threads/1/' + selectedAssistant.name)
             .then(response => setThreads(response.data))
             .catch(error => console.error('Error fetching threads', error));
-    }, [selectedOption.id]);
+    }, [selectedAssistant.id]);
+
+
+    useEffect(() => {
+        if (!selectedThread.id) {
+            setMessages([]);
+            return;
+        }
+        axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/1/' + selectedAssistant.name + '/' + selectedThread.id)
+            .then((response) => {
+                console.log(response.data);
+                setMessages(response.data)
+            })
+            .catch(error => console.error('Error fetching messages', error));
+    }, [selectedThread.id]);
 
     // const handleCreateAssistant = async () => {
     //     // Replace with your API endpoint and request body as needed
@@ -87,25 +103,32 @@ const Page: React.FC = () => {
         router.push('/createAssistant'); // Use the path to your new form page
     };
 
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChangeAssistant = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedIndex = event.target.options.selectedIndex;
         const id = event.target.value;
         const name = event.target.options[selectedIndex].text;
 
-        setSelectedOption({ id, name });
+        setSelectedAssistant({ id, name });
     };
 
+    const handleChangeThread = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedIndex = event.target.options.selectedIndex;
+        const id = event.target.value;
+        const name = event.target.options[selectedIndex].text;
+
+        setSelectedThread({ id });
+    };
 
     // CHAT
-    const [messages, setMessages] = useState<Message[]>([]);
+    // const [messages, setMessages] = useState<Message[]>([]);
     const toast = useToast();
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        // Simulate fetching messages from backend
-        setMessages(messagesData);
-        scrollToBottom();
-    }, []);
+    // useEffect(() => {
+    //     // Simulate fetching messages from backend
+    //     setMessages(messagesData);
+    //     scrollToBottom();
+    // }, []);
 
     const scrollToBottom = () => {
         endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,21 +136,21 @@ const Page: React.FC = () => {
 
     // Example function to handle sending new messages
     // In a real application, you would also send this to your backend
-    const sendMessage = (message: string) => {
-        const newMessage = {
-            id: messages.length + 1,
-            text: message,
-            sender: 'UserX', // Example sender, replace with actual sender data
-        };
-        setMessages([...messages, newMessage]);
-        scrollToBottom();
-        toast({
-            title: 'Message sent.',
-            status: 'info',
-            duration: 2000,
-            isClosable: true,
-        });
-    };
+    // const sendMessage = (message: string) => {
+    //     const newMessage = {
+    //         id: messages.length + 1,
+    //         text: message,
+    //         sender: 'UserX', // Example sender, replace with actual sender data
+    //     };
+    //     setMessages([...messages, newMessage]);
+    //     scrollToBottom();
+    //     toast({
+    //         title: 'Message sent.',
+    //         status: 'info',
+    //         duration: 2000,
+    //         isClosable: true,
+    //     });
+    // };
 
 
     return (
@@ -141,17 +164,17 @@ const Page: React.FC = () => {
 
                     <h1>Select an Assistant</h1>
                     {/* <select onChange={e => setSelectedAssistant(e.target.value)} value={selectedAssistant}> */}
-                    <select onChange={handleChange} value={selectedOption.id}>
+                    <select onChange={handleChangeAssistant} value={selectedAssistant.id}>
                         <option value="">Select a Assistant</option>
                         {assistants.map(assistant => (
                             <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
                         ))}
                     </select>
 
-                    {selectedOption && (
+                    {selectedAssistant && (
                         <div>
                             <h2>Select a Thread</h2>
-                            <select>
+                            <select onChange={handleChangeThread} value={selectedThread.id}>
                                 <option value="">Select a thread</option>
                                 {threads.map(thread => (
                                     <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_id}</option>
@@ -165,11 +188,16 @@ const Page: React.FC = () => {
                 <div style={{ flex: '2', textAlign: 'center' }}>
                     <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" p={4} height="500px" display="flex" flexDirection="column">
                         <VStack flex="1" overflowY="scroll" spacing={4} align="stretch">
-                            {messages.map((message) => (
-                                <Box key={message.id} p={4} borderWidth="1px" borderRadius="lg">
-                                    <Text>{message.sender}: {message.text}</Text>
-                                </Box>
-                            ))}
+                            {messages?.length ? (
+                                messages.map((message) => (
+                                    <Box key={message.id} p={4} borderWidth="1px" borderRadius="lg">
+                                        <Text>{message.role}: {message.text}</Text>
+                                    </Box>
+                                ))
+
+                            ) : (
+                                <Text alignSelf="center" marginTop="20px">No messages yet</Text>
+                            )}
                             <div ref={endOfMessagesRef} />
                         </VStack>
                         <Box mt={4}>
