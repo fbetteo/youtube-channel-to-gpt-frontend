@@ -1,29 +1,46 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import styles from './form.module.css'
 import { useToast, Button } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react'
-
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 const CreateAssistant = () => {
     const router = useRouter();
     const [channelId, setChannelId] = useState<string>('');
     const [assistantName, setAssistantName] = useState<string>('');
     const toast = useToast();
     const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [jwtToken, setJwtToken] = useState<string>('');
     // Add more state as needed for additional form fields
+    const supabase = createClientComponentClient();
+    useEffect(() => {
+        supabase.auth.getSession()
+            .then((session) => {
+                const jwt_token = session?.data?.session?.access_token;
+                console.log(jwt_token + "pepepep");
+                if (!jwt_token) {
+                    console.error("JWT token is not available.");
+                    return;
+                }
+                setJwtToken(jwt_token);
+            })
+            .catch(error => console.error('Error getting the token', error));
+        // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent default form submission behavior
         setIsLoading(true); // Set loading state
 
         try {
-            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/1/' + assistantName, null, {
+            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/' + assistantName, null, {
+
                 params: {
                     channel_id: channelId
                     // Include additional data as needed
-                }
+                }, headers: { "Authorization": `Bearer ${jwtToken}` }
             });
             console.log('Assistant created:', response.data);
             toast({
