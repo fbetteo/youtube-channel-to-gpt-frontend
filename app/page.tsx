@@ -46,7 +46,6 @@ const Page: React.FC = () => {
     const [selectedThread, setSelectedThread] = useState({ id: '' });
     const [messages, setMessages] = useState<Message[]>([]);
     const [jwtToken, setJwtToken] = useState<string>('');
-
     const router = useRouter();
     console.log(process.env.NEXT_PUBLIC_API_URL);
     const supabase = createClientComponentClient()
@@ -104,40 +103,12 @@ const Page: React.FC = () => {
     }
 
 
-    // // Example usage
-    // (async () => {
-    //     const userId = await fetchUserId();
-    //     // if (userId) {
-    //     //   // Proceed with the user ID
-    //     // }
-    // })();
-    // (async () => {
-    //     const jwt_token = await fetchSession();
-    //     // if (userId) {
-    //     //   // Proceed with the user ID
-    //     // }
-    // })();
-
-    // axios.defaults.withCredentials = true
-    // axios.get<Assistant[]>(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected', {
-    //     headers: { "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6Ikg2NzFncUlXdmRQZ21EeDciLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzEyMDAzNjEyLCJpYXQiOjE3MTIwMDAwMTIsImlzcyI6Imh0dHBzOi8vYWFnb3d1dmZnbXNndXdmbGV2ZHEuc3VwYWJhc2UuY28vYXV0aC92MSIsInN1YiI6IjU3YWI1MDMxLWUxN2UtNDZkYi1iZjQ4LWRjOWNkZTZhZDE2MCIsImVtYWlsIjoiZnJhbmNvYmV0dGVvQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJmcmFuY29iZXR0ZW9AZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6IjU3YWI1MDMxLWUxN2UtNDZkYi1iZjQ4LWRjOWNkZTZhZDE2MCJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzEyMDAwMDEyfV0sInNlc3Npb25faWQiOiI4MTVmMjFlMC05MDJiLTRiMWMtYTY5MC1lZDUxZThkZTJlZTgiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.Pek8Xj21u7OsQSepmmB1S-KIxdoO90Q8-QXJdx30dxE` }
-    //     // Include additional data as needed
-    // })
 
     useEffect(() => {
         supabase.auth.getSession()
             .then((session) => {
                 const jwt_token = session?.data?.session?.access_token;
                 console.log(jwt_token + "pepepep");
-                // if (session) {
-                //     // User is signed in and we can access the user ID
-                //     const jwt_token = session?.data.session.access_token;
-                //     console.log("jwt token:", jwt_token);
-                //     return jwt_token;
-                // } else {
-                //     // No user is signed in
-                //     console.log("No user is currently signed in.");
-                //     return null;
                 if (!jwt_token) {
                     console.error("JWT token is not available.");
                     return;
@@ -172,7 +143,10 @@ const Page: React.FC = () => {
             setThreads([]);
             return;
         }
-        axios.get<Thread[]>(`process.env.NEXT_PUBLIC_API_URL + '/threads/1/${selectedAssistant}`)
+        axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${selectedAssistant.name}`, {
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+            // Include additional data as needed
+        })
             .then(response => setThreads(response.data))
             .catch(error => console.error('Error fetching threads', error));
     }, [selectedAssistant]);
