@@ -6,6 +6,7 @@ import styles from './form.module.css'
 import { useToast, Button } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 const CreateAssistant = () => {
     const router = useRouter();
     const [channelId, setChannelId] = useState<string>('');
@@ -15,6 +16,8 @@ const CreateAssistant = () => {
     const [jwtToken, setJwtToken] = useState<string>('');
     // Add more state as needed for additional form fields
     const supabase = createClientComponentClient();
+
+
     useEffect(() => {
         supabase.auth.getSession()
             .then((session) => {
@@ -70,41 +73,44 @@ const CreateAssistant = () => {
         }
     };
 
+
     return (
-        <ChakraProvider>
+        <AuthProvider>
+            <ChakraProvider>
             // <form onSubmit={handleSubmit} className={styles.formContainer}>
-                {/* <form onSubmit={handleSubmit} > */}
-                {/* <div className={styles.formTitle}>Create Assistant</div> */}
-                <label htmlFor="channelId">Channel ID:</label>
-                <input
-                    id="channelId"
-                    value={channelId}
-                    onChange={(e) => setChannelId(e.target.value)}
-                    required
-                    className={styles.input}
-                />
+                    {/* <form onSubmit={handleSubmit} > */}
+                    {/* <div className={styles.formTitle}>Create Assistant</div> */}
+                    <label htmlFor="channelId">Channel ID:</label>
+                    <input
+                        id="channelId"
+                        value={channelId}
+                        onChange={(e) => setChannelId(e.target.value)}
+                        required
+                        className={styles.input}
+                    />
 
-                <label htmlFor="assistantName">Assistant Name:</label>
-                <input
-                    id="assistantName"
-                    value={assistantName}
-                    onChange={(e) => setAssistantName(e.target.value)}
-                    required
-                    className={styles.input}
-                />
+                    <label htmlFor="assistantName">Assistant Name:</label>
+                    <input
+                        id="assistantName"
+                        value={assistantName}
+                        onChange={(e) => setAssistantName(e.target.value)}
+                        required
+                        className={styles.input}
+                    />
 
-                {/* Include additional form fields as needed */}
-                {isLoading ? (
-                    <Button isLoading loadingText="Submitting" disabled>
-                        Submit
-                    </Button>
-                ) : (
-                    <Button type="submit" colorScheme="blue">
-                        Submit
-                    </Button>
-                )}
-            </form>
-        </ChakraProvider>
+                    {/* Include additional form fields as needed */}
+                    {isLoading ? (
+                        <Button isLoading loadingText="Submitting" disabled>
+                            Submit
+                        </Button>
+                    ) : (
+                        <Button type="submit" colorScheme="blue">
+                            Submit
+                        </Button>
+                    )}
+                </form>
+            </ChakraProvider>
+        </AuthProvider>
 
     );
 };

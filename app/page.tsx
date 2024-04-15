@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { ChakraProvider } from '@chakra-ui/react'
 import { Container, Heading, Box, VStack, Text, Input, Button, Select, useToast } from '@chakra-ui/react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { AuthProvider } from '../contexts/AuthContext'; // no tuve exito con esto , lo dejo ahi por ahora
+import ChatBox from './components/ChatBox';
 interface Assistant {
     id: string;
     name: string;
@@ -82,25 +84,25 @@ const Page: React.FC = () => {
     //         }
     //     }
 
-    function fetchSession2() {
-        supabase.auth.getSession()
-            .then((session) => {
-                const jwt_token = session?.data?.session?.access_token;
-                console.log(jwt_token + "pepepep");
-                // if (session) {
-                //     // User is signed in and we can access the user ID
-                //     const jwt_token = session?.data.session.access_token;
-                //     console.log("jwt token:", jwt_token);
-                //     return jwt_token;
-                // } else {
-                //     // No user is signed in
-                //     console.log("No user is currently signed in.");
-                //     return null;
-                return jwt_token;
-            })
-            .catch(error => console.error('Error getting the token', error));
+    // function fetchSession2() {
+    //     supabase.auth.getSession()
+    //         .then((session) => {
+    //             const jwt_token = session?.data?.session?.access_token;
+    //             console.log(jwt_token + "pepepep");
+    //             // if (session) {
+    //             //     // User is signed in and we can access the user ID
+    //             //     const jwt_token = session?.data.session.access_token;
+    //             //     console.log("jwt token:", jwt_token);
+    //             //     return jwt_token;
+    //             // } else {
+    //             //     // No user is signed in
+    //             //     console.log("No user is currently signed in.");
+    //             //     return null;
+    //             return jwt_token;
+    //         })
+    //         .catch(error => console.error('Error getting the token', error));
 
-    }
+    // }
 
 
 
@@ -162,18 +164,21 @@ const Page: React.FC = () => {
     // }, [selectedAssistant.id]);
 
 
-    // useEffect(() => {
-    //     if (!selectedThread.id) {
-    //         setMessages([]);
-    //         return;
-    //     }
-    //     axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/1/' + selectedAssistant.name + '/' + selectedThread.id)
-    //         .then((response) => {
-    //             console.log(response.data);
-    //             setMessages(response.data)
-    //         })
-    //         .catch(error => console.error('Error fetching messages', error));
-    // }, [selectedThread.id]);
+    useEffect(() => {
+        if (!selectedThread.id) {
+            setMessages([]);
+            return;
+        }
+        axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + selectedAssistant.id + '/' + selectedThread.id, {
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+            // Include additional data as needed
+        })
+            .then((response) => {
+                console.log(response.data);
+                setMessages(response.data)
+            })
+            .catch(error => console.error('Error fetching messages', error));
+    }, [selectedThread.id]);
 
     // const handleCreateAssistant = async () => {
     //     // Replace with your API endpoint and request body as needed
@@ -206,6 +211,17 @@ const Page: React.FC = () => {
 
         setSelectedThread({ id });
     };
+
+    const handleNewChat = async () => {
+        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/threads/' + selectedAssistant.name, null, {
+
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+        });
+        console.log('Thread created:', response.data);
+        // setThreads(response.data)
+        setMessages([]);
+    };
+
 
     // CHAT
     // const [messages, setMessages] = useState<Message[]>([]);
@@ -246,8 +262,9 @@ const Page: React.FC = () => {
 
             <Container centerContent>
                 <VStack spacing={8} mt={12}>
+                    { }
                     <Heading>Welcome to Our Application</Heading>
-                    {/* <AuthButtons /> */}
+                    {jwtToken ? <Text>LOGGED IN</Text> : <Text>JWT Token not available</Text>}
                 </VStack>
             </Container>
             <div style={{ display: 'flex', flexDirection: 'row', minHeight: '25vh', alignItems: 'center' }}>
@@ -275,6 +292,8 @@ const Page: React.FC = () => {
                             </Select>
                         </div>
                     )}
+
+                    <Button onClick={handleNewChat} >New Chat</Button>
                 </div>
 
                 {/* Main content in the middle */}
@@ -293,10 +312,7 @@ const Page: React.FC = () => {
                             )}
                             <div ref={endOfMessagesRef} />
                         </VStack>
-                        <Box mt={4}>
-                            {/* Implement your input and send button here */}
-                            <Text>Send a message feature not implemented in this snippet.</Text>
-                        </Box>
+                        <ChatBox thread_id={selectedThread.id} assistant_id={selectedAssistant.id} jwtToken={jwtToken}></ChatBox>
                     </Box>
                 </div>
 
