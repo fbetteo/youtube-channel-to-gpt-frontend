@@ -8,6 +8,9 @@ import { Container, Heading, Box, VStack, Text, Input, Button, Select, useToast 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthProvider } from '../contexts/AuthContext'; // no tuve exito con esto , lo dejo ahi por ahora
 import ChatBox from './components/ChatBox';
+
+import { create, useStore } from 'zustand';
+
 interface Assistant {
     id: string;
     name: string;
@@ -32,9 +35,28 @@ interface Message {
 // ];
 
 
+interface BearState {
+    bears: number,
+    assistant: string,
+    increase: (by: number) => void,
+    modifyAssistant: (assistant: string) => void
+
+}
+
+const useBearStore = create<BearState>()((set) => ({
+    bears: 0,
+    assistant: "",
+    increase: (by) => set((state) => ({ bears: state.bears + by })),
+    modifyAssistant: (new_assistant: string) => set(() => ({ assistant: new_assistant }))
+})
+)
 
 
-
+// DUDAS
+// AUTH. Estoy pasando el token como bearer y validando en el back. eso creo que ok. No estoy seguro como hacerlo para componentes que defino en otra pagina como Chatbox. Tengo que traer el jwt token alla? Lo paso como parametro como hice abajo?
+// Global state. Mas detalles. Estoy probando Zustang pero ni idea. No se bien como interactuar con cosas que defino en distintas paginas.
+// Como mantengo estado si cambio de paginas? para que el assistant_id y los mensajes no se vayan si hago refresh.
+// Como reacciono a mensajes enviados? Es decir, quiero que actualice los mensajes del chat una vez que clickeo send. Ahora, al clickear, la api manda el mensaje. Necesito que ademas traiga ese mensaje y luego la respuesta (que puede tardar unos segundos). Hice una funcion aca en page.tsx para que traiga todo una vez que mandas con useEffect pero suena rustico (y tengo que ver como handlear despues el futuro mensajes)
 
 const Page: React.FC = () => {
 
@@ -48,9 +70,19 @@ const Page: React.FC = () => {
     const [selectedThread, setSelectedThread] = useState({ id: '' });
     const [messages, setMessages] = useState<Message[]>([]);
     const [jwtToken, setJwtToken] = useState<string>('');
+
+    const [messageUploaded, setMessageUploaded] = useState<boolean>(false);
+    const handleUploadMessage = () => { setMessageUploaded(true); console.log(messageUploaded) };
+
     const router = useRouter();
     console.log(process.env.NEXT_PUBLIC_API_URL);
     const supabase = createClientComponentClient()
+
+    const bears = useBearStore(state => state.bears)
+    const assistant_zustang = useBearStore(state => state.assistant)
+    console.log(bears)
+    console.log(assistant_zustang)
+
     // get user_id from supabase auth
 
     // async function fetchUserId() {
@@ -134,6 +166,7 @@ const Page: React.FC = () => {
             .then((response) => {
                 console.log(response.data);
                 setAssistants(response.data);
+
             })
             // .then(console.log(assistants)
             .catch(error => console.error('Error fetching channels', error));
@@ -149,7 +182,10 @@ const Page: React.FC = () => {
             headers: { "Authorization": `Bearer ${jwtToken}` }
             // Include additional data as needed
         })
-            .then(response => setThreads(response.data))
+            .then(response => {
+                setThreads(response.data);
+                useBearStore.setState({ assistant: selectedAssistant.name });
+            })
             .catch(error => console.error('Error fetching threads', error));
     }, [selectedAssistant]);
 
@@ -163,7 +199,7 @@ const Page: React.FC = () => {
     //         .catch(error => console.error('Error fetching threads', error));
     // }, [selectedAssistant.id]);
 
-
+    // THIS WORKS
     useEffect(() => {
         if (!selectedThread.id) {
             setMessages([]);
@@ -179,6 +215,53 @@ const Page: React.FC = () => {
             })
             .catch(error => console.error('Error fetching messages', error));
     }, [selectedThread.id]);
+
+    useEffect(() => {
+        axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + selectedAssistant.id + '/' + selectedThread.id, {
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+            // Include additional data as needed
+        })
+            .then((response) => {
+                console.log(response.data);
+                setMessages(response.data);
+                // add some waiting message
+                setMessageUploaded(false);
+            })
+            .catch(error => console.error('Error fetching messages', error));
+
+    }, [messageUploaded]);
+
+    // useEffect(() => {
+    //     if (!selectedThread.id) {
+    //         setMessages([]);
+    //         return;
+    //     }
+
+    //     let intervalId: NodeJS.Timeout | null = null;
+
+    //     const fetchData = async () => {
+    //         axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + selectedAssistant.id + '/' + selectedThread.id, {
+    //             headers: { "Authorization": `Bearer ${jwtToken}` }
+    //             // Include additional data as needed
+    //         })
+    //             .then((response) => {
+    //                 console.log(response.data);
+    //                 setMessages(response.data)
+    //             })
+    //             .catch(error => console.error('Error fetching messages', error));
+    //     };
+
+    //     if (selectedThread) {
+    //         // Start the interval only if shouldFetch is true
+    //         intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+    //     }
+
+    //     return () => {
+    //         if (intervalId) {
+    //             clearInterval(intervalId);
+    //         }
+    //     };
+    // }, [selectedThread.id]);
 
     // const handleCreateAssistant = async () => {
     //     // Replace with your API endpoint and request body as needed
@@ -312,7 +395,7 @@ const Page: React.FC = () => {
                             )}
                             <div ref={endOfMessagesRef} />
                         </VStack>
-                        <ChatBox thread_id={selectedThread.id} assistant_id={selectedAssistant.id} jwtToken={jwtToken}></ChatBox>
+                        <ChatBox thread_id={selectedThread.id} assistant_id={selectedAssistant.id} jwtToken={jwtToken} handleUploadMessage={handleUploadMessage}></ChatBox>
                     </Box>
                 </div>
 

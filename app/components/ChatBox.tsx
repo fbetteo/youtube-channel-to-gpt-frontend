@@ -7,9 +7,10 @@ interface Props {
     thread_id: string;
     assistant_id: string;
     jwtToken: string;
+    handleUploadMessage: () => void;
 }
 
-const ChatBox = ({ thread_id, assistant_id, jwtToken }: Props) => {
+const ChatBox = ({ thread_id, assistant_id, jwtToken, handleUploadMessage }: Props) => {
     // State to hold the input value
     const [inputValue, setInputValue] = useState('');
     // Chakra UI's toast for feedback
@@ -68,7 +69,7 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken }: Props) => {
             <Button
                 colorScheme="blue"
                 mt={2}
-                onClick={handleSendClick}
+                onClick={() => { handleSendClick(); handleUploadMessage() }}
             >
                 Send
             </Button>
