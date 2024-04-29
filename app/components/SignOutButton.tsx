@@ -10,7 +10,9 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../utils/supabaseClient'; // Make sure this path is correct
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useGlobalStore } from '../store/store';
 const SignOutButton: React.FC = () => {
+    const { modifyjwtToken } = useGlobalStore.getState();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const toast = useToast();
@@ -39,6 +41,7 @@ const SignOutButton: React.FC = () => {
                 duration: 9000,
                 isClosable: true,
             });
+            modifyjwtToken("")
             await new Promise(resolve => setTimeout(resolve, 2000));
             router.push('/');
         }

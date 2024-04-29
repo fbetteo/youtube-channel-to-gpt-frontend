@@ -2,17 +2,24 @@ import { Box, Input, Button, useToast } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState } from 'react';
 
+
+interface Message {
+    id: number;
+    role: string;
+    text: string; // You can expand this model based on your actual data
+}
 // somehow get the jwt in managed state ?
 interface Props {
     thread_id: string;
     assistant_id: string;
     jwtToken: string;
-    handleUploadMessage: () => void;
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
-const ChatBox = ({ thread_id, assistant_id, jwtToken, handleUploadMessage }: Props) => {
+const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // State to hold the input value
     const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false);
     // Chakra UI's toast for feedback
     const toast = useToast();
     // Function to handle input changes
@@ -25,9 +32,8 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, handleUploadMessage }: Pro
         // Here, you can add the logic to process the message, like sending it to a server
         console.log("Sending message:", inputValue);
         console.log("Thread ID:", thread_id);
+        setLoading(true);
 
-        // Resetting input field after send
-        setInputValue('');
 
         try {
             const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
@@ -38,7 +44,20 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, handleUploadMessage }: Pro
                 }, headers: { "Authorization": `Bearer ${jwtToken}` }
             });
 
+
+            // Resetting input field after send
+            setInputValue('');
+            console.log('Message sent:', response.data);
+            setMessages(response.data);
+
+
+            const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_meesages', null
+                // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
+                , { headers: { "Authorization": `Bearer ${jwtToken}` } }
+            );
+
             // Providing feedback to the user
+            setLoading(false);
             toast({
                 title: 'Message sent.',
                 description: "Your message has been successfully sent.",
@@ -69,7 +88,9 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, handleUploadMessage }: Pro
             <Button
                 colorScheme="blue"
                 mt={2}
-                onClick={() => { handleSendClick(); handleUploadMessage() }}
+                isLoading={loading}
+                loadingText="Answering your question..."
+                onClick={() => { handleSendClick(); }}
             >
                 Send
             </Button>
