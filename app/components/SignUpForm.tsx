@@ -49,7 +49,7 @@ const SignUpForm: React.FC = () => {
             email: email, subscription: 'free'
         }
             // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
-            , { headers: { "Authorization": `Bearer ${sessioncheck}` } }
+            , { headers: { "Authorization": `Bearer ${sessioncheck?.jwtToken}` } }
         );
 
         if (error || response.status !== 200) {

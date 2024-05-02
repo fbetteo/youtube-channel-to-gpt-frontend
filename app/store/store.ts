@@ -4,9 +4,11 @@ import { Assistant, Thread } from '../types/types';
 
 interface GlobalState {
     jwtToken: string,
+    subscription: string,
     assistant: Assistant,
     threads: Thread[],
     thread: Thread,
+    modifySubscription: (new_subscription: string) => void,
     modifyjwtToken: (jwtToken: string) => Promise<string>,
     modifyAssistant: (assistant: Assistant) => void,
     modifyThreads: (threads: Thread[]) => void,
@@ -20,9 +22,11 @@ interface GlobalState {
 export const useGlobalStore = create<GlobalState>()(persist(
     (set) => ({
         jwtToken: "",
+        subscription: "",
         assistant: { id: "", name: "" },
         threads: [{ thread_id: "" }],
         thread: { thread_id: "" },
+        modifySubscription: (new_subscription: string) => set(() => ({ subscription: new_subscription })),
         modifyjwtToken: (new_jwtToken: string) => {
             return new Promise((resolve) => {
               set({ jwtToken: new_jwtToken });
@@ -39,6 +43,6 @@ export const useGlobalStore = create<GlobalState>()(persist(
     {
         name: 'my-partial-store', // unique name for storage
         getStorage: () => sessionStorage, // or localStorage for longer persistence
-        partialize: (state) => ({ jwtToken: state.jwtToken, assistant: state.assistant, threads: state.threads, thread: state.thread }), // only persist the count variable
+        partialize: (state) => ({ jwtToken: state.jwtToken, subscription: state.subscription, assistant: state.assistant, threads: state.threads, thread: state.thread }), 
     }
 ));

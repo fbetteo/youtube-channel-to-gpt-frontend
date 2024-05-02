@@ -1,8 +1,9 @@
 import { Box, Input, Button, useToast } from '@chakra-ui/react';
 import axios from 'axios';
-import { useState } from 'react';
-
-
+import { useState, useEffect } from 'react';
+import checkSession from '../utils/checkSession';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter } from '@chakra-ui/react';
+import { UUID } from 'crypto';
 interface Message {
     id: number;
     role: string;
@@ -19,9 +20,21 @@ interface Props {
 const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // State to hold the input value
     const [inputValue, setInputValue] = useState('');
+    const [uuid, setUuid] = useState<UUID | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [checkoutUrl, setCheckoutUrl] = useState('');
     // Chakra UI's toast for feedback
     const toast = useToast();
+
+    useEffect(() => {
+        // Redirect when a valid checkout URL is set
+        if (checkoutUrl) {
+            window.location.assign(checkoutUrl);
+        }
+    }, [checkoutUrl]);
+
+
     // Function to handle input changes
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
@@ -30,52 +43,81 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // Function to handle the send button click
     const handleSendClick = async () => {
         // Here, you can add the logic to process the message, like sending it to a server
+        const sessioncheck = await checkSession();
         console.log("Sending message:", inputValue);
         console.log("Thread ID:", thread_id);
         setLoading(true);
+        setUuid(sessioncheck?.userData.uuid);
 
 
-        try {
-            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
 
-                params: {
-                    content: inputValue
-                    // Include additional data as needed
-                }, headers: { "Authorization": `Bearer ${jwtToken}` }
-            });
+        if (sessioncheck?.userData.subscription === 'free' && sessioncheck?.userData.count_messages >= 3) {
+            setModalOpen(true);
+
+        }
+
+        else {
+            try {
+                const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
+
+                    params: {
+                        content: inputValue
+                        // Include additional data as needed
+                    }, headers: { "Authorization": `Bearer ${jwtToken}` }
+                });
 
 
-            // Resetting input field after send
-            setInputValue('');
-            console.log('Message sent:', response.data);
-            setMessages(response.data);
+                // Resetting input field after send
+                setInputValue('');
+                console.log('Message sent:', response.data);
+                setMessages(response.data);
 
 
-            const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_meesages', null
-                // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
-                , { headers: { "Authorization": `Bearer ${jwtToken}` } }
-            );
+                const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
+                    // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
+                    , { headers: { "Authorization": `Bearer ${jwtToken}` } }
+                );
 
-            // Providing feedback to the user
-            setLoading(false);
-            toast({
-                title: 'Message sent.',
-                description: "Your message has been successfully sent.",
-                status: 'success',
-                duration: 5000,
-                isClosable: true,
-            });
-        } catch (error) {
-            console.error('Submission error:', error);
+                // Providing feedback to the user
+                setLoading(false);
+                toast({
+                    title: 'Message sent.',
+                    description: "Your message has been successfully sent.",
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true,
+                });
+            } catch (error) {
+                console.error('Submission error:', error);
+                toast({
+                    title: 'An error occurred.',
+                    description: 'Unable to submit form. Please try again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                    position: 'top',
+                });
+            };
+        };
+    };
+
+
+    const handleCheckout = async () => {
+        // Call backend to create a Stripe checkout session
+        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/create-checkout-session', { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken}` } });
+        if (response.data.url) {
+            setCheckoutUrl(response.data.url);  // Trigger redirection via useEffect
+        } else {
+            // Handle error (e.g., show an error message)
             toast({
                 title: 'An error occurred.',
-                description: 'Unable to submit form. Please try again.',
+                description: 'Unable to create checkout session. Please try again.',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
                 position: 'top',
             });
-        };
+        }
     };
 
     return (
@@ -94,6 +136,21 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
             >
                 Send
             </Button>
+            <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false) }}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Action Limit Reached</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        You have reached your maximum number of free actions. Please upgrade to continue.
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} onClick={handleCheckout}>
+                            Subscribe
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Box>
     );
 };

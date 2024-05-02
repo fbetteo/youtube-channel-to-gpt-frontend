@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useGlobalStore } from '../store/store';
+import axios from 'axios';
+import { UserData, sessionData } from '../types/types';
 
 
 
@@ -29,8 +31,8 @@ import { useGlobalStore } from '../store/store';
 //     return result;
 // };
 
-async function checkSession(): Promise<string | undefined> {
-    const { modifyjwtToken } = useGlobalStore.getState();
+async function checkSession(): Promise<sessionData | undefined> {
+    const { modifyjwtToken, modifySubscription } = useGlobalStore.getState();
     const supabase = createClientComponentClient()
     try {
         const sessionResult = await supabase.auth.getSession();
@@ -40,13 +42,19 @@ async function checkSession(): Promise<string | undefined> {
 
         if (!jwt_token) {
             console.error("JWT token is not available.");
-            return "";
+            return undefined;
         }
 
         // Perform additional actions with the JWT token
         const resource = await modifyjwtToken(jwt_token);
         console.log('Resource data:', resource);
-        return resource
+        const subscription = await axios.get<UserData>(process.env.NEXT_PUBLIC_API_URL + '/get_user_data', {
+            headers: { "Authorization": `Bearer ${jwt_token}` }
+            // Include additional data as needed
+        })
+        modifySubscription(subscription.data.subscription)
+
+        return { "jwtToken": resource, "userData": subscription.data };
 
     } catch (error) {
         console.error('Error getting the token', error);

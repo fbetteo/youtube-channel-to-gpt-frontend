@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 // import { supabase } from '../utils/supabaseClient'; // Make sure this path is correct
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useGlobalStore } from '../store/store';
 
 const SignInForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -30,6 +31,7 @@ const SignInForm: React.FC = () => {
             password,
         });
 
+        console.log("error", error)
 
 
         if (error) {
@@ -41,6 +43,7 @@ const SignInForm: React.FC = () => {
                 isClosable: true,
             });
         } else {
+
             toast({
                 title: 'Sign in successful!',
                 description: 'You are now signed in.',

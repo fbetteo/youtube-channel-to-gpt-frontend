@@ -9,7 +9,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 const CreateAssistant = () => {
     const router = useRouter();
-    const [channelId, setChannelId] = useState<string>('');
+    const [channelName, setChannelName] = useState<string>('');
     const [assistantName, setAssistantName] = useState<string>('');
     const toast = useToast();
     const [isLoading, setIsLoading] = useState(false); // Loading state
@@ -39,9 +39,8 @@ const CreateAssistant = () => {
 
         try {
             const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/' + assistantName, null, {
-
                 params: {
-                    channel_id: channelId
+                    channel_name: channelName
                     // Include additional data as needed
                 }, headers: { "Authorization": `Bearer ${jwtToken}` }
             });
@@ -77,24 +76,33 @@ const CreateAssistant = () => {
     return (
         <AuthProvider>
             <ChakraProvider>
-            // <form onSubmit={handleSubmit} className={styles.formContainer}>
-                    {/* <form onSubmit={handleSubmit} > */}
-                    {/* <div className={styles.formTitle}>Create Assistant</div> */}
-                    <label htmlFor="channelId">Channel ID:</label>
+                <form onSubmit={handleSubmit} className={styles.formContainer}>
+                    {/* <form onSubmit={handleSubmit} >
+                    <div className={styles.formTitle}>Create Assistant</div> */}
+                    <strong className={styles.note}>
+                        Please enter the Youtube channel name without the '@' symbol.
+                    </strong>
+                    <label htmlFor="channelName">Channel Name:</label>
                     <input
-                        id="channelId"
-                        value={channelId}
-                        onChange={(e) => setChannelId(e.target.value)}
+                        id="channelName"
+                        value={channelName}
+                        onChange={(e) => setChannelName(e.target.value)}
                         required
+                        placeholder="MrBeast"
                         className={styles.input}
                     />
 
-                    <label htmlFor="assistantName">Assistant Name:</label>
+                    <strong className={styles.note}>
+                        Please enter your assistant name without the '@' symbol.
+                    </strong>
+                    <p>This is how you will name the AI assistant for future reference</p>
+                    <label htmlFor="assistantName">AI Assistant Name:</label>
                     <input
                         id="assistantName"
                         value={assistantName}
                         onChange={(e) => setAssistantName(e.target.value)}
                         required
+                        placeholder="MrBeast Assistant"
                         className={styles.input}
                     />
 

@@ -313,7 +313,7 @@ const Page: React.FC = () => {
         if (!assistant_zustand.name) {
             return "Select a channel to talk to!";
         } else if (assistant_zustand.name === "Select an Assistant") {
-            return "Select a channel to talk to! ";
+            return "Select a channel to talk to!";
         } else {
             return "Chatting with " + assistant_zustand.name;
         }
@@ -416,7 +416,7 @@ const Page: React.FC = () => {
                     <div>
                         <h2>Select a Thread</h2>
                         <Select maxW="60%" onChange={handleChangeThread} value={thread_zustand.thread_id}>
-                            <option value={thread_zustand.thread_id}>Select a thread</option>
+                            <option value="">Select a thread</option>
                             {threads_zustand.map(thread => (
                                 <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_id}</option>
                             ))}
