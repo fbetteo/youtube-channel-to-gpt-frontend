@@ -15,6 +15,7 @@ import useCheckSession from './utils/useCheckSession';
 import { useGlobalStore } from './store/store';
 import { Assistant, Thread, Message } from './types/types';
 
+//
 
 // interface Assistant {
 //     id: string;
