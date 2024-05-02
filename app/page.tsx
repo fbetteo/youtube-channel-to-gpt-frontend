@@ -221,7 +221,7 @@ const Page: React.FC = () => {
                 modifyThreads(response.data)
             })
             .catch(error => console.error('Error fetching threads', error));
-    }, [assistant_zustand.name, newChat]);
+    }, [assistant_zustand.name, newChat, jwtToken_zustand, modifyThreads]);
 
     // useEffect(() => {
     //     if (!selectedAssistant.id) {
@@ -248,7 +248,7 @@ const Page: React.FC = () => {
                 setMessages(response.data)
             })
             .catch(error => console.error('Error fetching messages', error));
-    }, [thread_zustand.thread_id]);
+    }, [thread_zustand.thread_id, assistant_zustand.id, jwtToken_zustand, thread_zustand.thread_name]);
 
     // useEffect(() => {
     //     axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + selectedAssistant.id + '/' + selectedThread.id, {
