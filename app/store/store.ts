@@ -24,8 +24,8 @@ export const useGlobalStore = create<GlobalState>()(persist(
         jwtToken: "",
         subscription: "",
         assistant: { id: "", name: "" },
-        threads: [{ thread_id: "" }],
-        thread: { thread_id: "" },
+        threads: [{ thread_id:"", thread_name: "" }],
+        thread: { thread_id:"", thread_name: "" },
         modifySubscription: (new_subscription: string) => set(() => ({ subscription: new_subscription })),
         modifyjwtToken: (new_jwtToken: string) => {
             return new Promise((resolve) => {

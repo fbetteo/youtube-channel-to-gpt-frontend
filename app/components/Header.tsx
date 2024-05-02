@@ -1,12 +1,15 @@
 'use client';
 import React from 'react';
-import { Box, Flex, Button, useColorModeValue, Spacer } from '@chakra-ui/react';
+import { Box, Flex, Button, useColorModeValue, Spacer, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { useGlobalStore } from '../store/store';
 
 const Header: React.FC = () => {
     const router = useRouter();
     const bgColor = useColorModeValue('white', 'gray.800');
     const shadow = useColorModeValue('sm', 'none');
+    const jwtToken = useGlobalStore(state => state.jwtToken);
+    const subscription = useGlobalStore(state => state.subscription);
 
     return (
         <Flex
@@ -39,33 +42,43 @@ const Header: React.FC = () => {
                 {/* Navigation or branding elements can go here */}
             </Box>
 
-            <Box
-                display={{ base: 'none', md: 'block' }}
-                mt={{ base: 4, md: 0 }}
-            >
-                <Button
-                    variant="outline"
-                    colorScheme="teal"
-                    mr={4}
-                    onClick={() => router.push('/signin')}
+            {!jwtToken ? (
+
+                <Box
+                    display={{ base: 'none', md: 'block' }}
+                    mt={{ base: 4, md: 0 }}
                 >
-                    Sign In
-                </Button>
-                <Button
-                    variant="solid"
-                    colorScheme="teal"
-                    onClick={() => router.push('/signup')}
-                >
-                    Sign Up
-                </Button>
-                <Button
-                    variant="solid"
-                    colorScheme="teal"
-                    onClick={() => router.push('/signout')}
-                >
-                    Sign Out
-                </Button>
-            </Box>
+                    <Button
+                        variant="outline"
+                        colorScheme="teal"
+                        mr={4}
+                        onClick={() => router.push('/signin')}
+                    >
+                        Sign In
+                    </Button>
+                    <Button
+                        variant="solid"
+                        colorScheme="teal"
+                        onClick={() => router.push('/signup')}
+                    >
+                        Sign Up
+                    </Button>
+                </Box>
+            ) : (
+                <Box>
+                    <Flex alignItems="center" justifyContent="space-between">
+                        <Text fontSize="lg" fontWeight="bold" color="teal.600"> You have a {subscription} subscription</Text>
+                        <Button
+                            ml={4}
+                            variant="solid"
+                            colorScheme="teal"
+                            onClick={() => router.push('/signout')}
+                        >
+                            Sign Out
+                        </Button>
+                    </Flex>
+                </Box>
+            )}
         </Flex>
     );
 };

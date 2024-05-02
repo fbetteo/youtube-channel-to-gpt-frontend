@@ -7,6 +7,7 @@ export interface Assistant {
 
 export interface Thread {
     thread_id: string;
+    thread_name: string;
 }
 
 export interface UserData {

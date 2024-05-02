@@ -108,7 +108,7 @@ const Page: React.FC = () => {
     const jwtToken_zustand = useGlobalStore(state => state.jwtToken)
     const { modifyThread, modifyAssistant, modifyThreads } = useGlobalStore()
     console.log(assistant_zustand.name + "zustand")
-    console.log(thread_zustand.thread_id + "zustand thread")
+    console.log(thread_zustand.thread_name + "zustand thread")
     console.log(selectedAssistant.name + "selected assistant name")
     console.log(selectedThread.id + "selected thread id")
     console.log(messages.length + "messages length")
@@ -208,7 +208,7 @@ const Page: React.FC = () => {
     useEffect(() => {
         if (assistant_zustand.name === 'Select an Assistant') {
             // setThreads([]);
-            useGlobalStore.setState({ threads: [{ thread_id: "" }] })
+            useGlobalStore.setState({ threads: [{ thread_id: "", thread_name: "" }] })
             return;
         }
         axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
@@ -235,7 +235,7 @@ const Page: React.FC = () => {
 
     // THIS WORKS
     useEffect(() => {
-        if (!thread_zustand.thread_id) {
+        if (!thread_zustand.thread_name) {
             setMessages([]);
             return;
         }
@@ -337,7 +337,7 @@ const Page: React.FC = () => {
         const id = event.target.value;
         const name = event.target.options[selectedIndex].text;
         // useGlobalStore.setState({ thread: { thread_id: id } });
-        modifyThread({ thread_id: id });
+        modifyThread({ thread_id: id, thread_name: name });
 
         // setSelectedThread({ id });
     };
@@ -418,7 +418,7 @@ const Page: React.FC = () => {
                         <Select maxW="60%" onChange={handleChangeThread} value={thread_zustand.thread_id}>
                             <option value="">Select a thread</option>
                             {threads_zustand.map(thread => (
-                                <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_id}</option>
+                                <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_name}</option>
                             ))}
                         </Select>
                     </div>
