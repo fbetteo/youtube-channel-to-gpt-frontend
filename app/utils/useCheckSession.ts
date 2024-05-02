@@ -29,7 +29,7 @@ const useCheckSession = () => {
             })
             .catch(error => console.error('Error getting the token', error));
         // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
-    }, []);
+    }, [modifyjwtToken, modifySubscription ]);
 };
 
 

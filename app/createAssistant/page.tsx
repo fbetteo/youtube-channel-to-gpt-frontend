@@ -31,7 +31,7 @@ const CreateAssistant = () => {
             })
             .catch(error => console.error('Error getting the token', error));
         // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
-    }, []);
+    }, [supabase.auth]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Prevent default form submission behavior
@@ -80,7 +80,7 @@ const CreateAssistant = () => {
                     {/* <form onSubmit={handleSubmit} >
                     <div className={styles.formTitle}>Create Assistant</div> */}
                     <strong className={styles.note}>
-                        Please enter the Youtube channel name without the '@' symbol.
+                        Please enter the Youtube channel name without the &apos;@&apos; symbol.
                     </strong>
                     <label htmlFor="channelName">Channel Name:</label>
                     <input
@@ -93,7 +93,7 @@ const CreateAssistant = () => {
                     />
 
                     <strong className={styles.note}>
-                        Please enter your assistant name without the '@' symbol.
+                        Please enter your assistant name without the &apos;@&apos; symbol.
                     </strong>
                     <p>This is how you will name the AI assistant for future reference</p>
                     <label htmlFor="assistantName">AI Assistant Name:</label>
