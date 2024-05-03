@@ -1,8 +1,13 @@
+"use client";
 import React from 'react';
 import { Box, Container, Heading, VStack } from '@chakra-ui/react';
 import BackHomeButton from '../../components/BackHomeButton';
+import CancelSubscriptionButton from '../../components/CancelSubscriptionButton';
+import { useGlobalStore } from '../../store/store';
+import SubscriptionButton from '@/app/components/SubscriptionButton';
 
 const SettingsPage: React.FC = () => {
+    const subscription_zustand = useGlobalStore(state => state.subscription)
     return (
         <Container centerContent>
             {/* <Box w="100%" p={4}>
@@ -25,7 +30,11 @@ const SettingsPage: React.FC = () => {
 
                 <Box w="100%" mt={10}>
                     <Heading size="md" mb={2}>Subscription</Heading>
-                    {/* Placeholder for cancel subscription form */}
+                    {subscription_zustand === "free" ? (
+                        <SubscriptionButton />
+                    ) : (
+                        < CancelSubscriptionButton />
+                    )}
                 </Box>
 
                 <Box pt={8} pl={1}> {/* Added padding-top directly to the BackHomeButton container */}

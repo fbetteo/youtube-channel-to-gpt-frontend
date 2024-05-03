@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import checkSession from '../utils/checkSession';
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter } from '@chakra-ui/react';
-import { UUID } from 'crypto';
 interface Message {
     id: number;
     role: string;
@@ -20,7 +19,7 @@ interface Props {
 const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // State to hold the input value
     const [inputValue, setInputValue] = useState('');
-    const [uuid, setUuid] = useState<UUID | undefined>(undefined);
+    const [uuid, setUuid] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
     const [checkoutUrl, setCheckoutUrl] = useState('');

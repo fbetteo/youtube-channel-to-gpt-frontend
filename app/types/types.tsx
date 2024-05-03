@@ -1,5 +1,4 @@
-import { UUID } from "crypto";
-
+import { v4 as uuidv4 } from 'uuid';
 export interface Assistant {
     id: string;
     name: string;
@@ -11,7 +10,7 @@ export interface Thread {
 }
 
 export interface UserData {
-    uuid: UUID;
+    uuid: string;
     email: string;
     subscription: string;
     count_messages: number;

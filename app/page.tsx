@@ -14,6 +14,7 @@ import { persist } from 'zustand/middleware';
 import useCheckSession from './utils/useCheckSession';
 import { useGlobalStore } from './store/store';
 import { Assistant, Thread, Message } from './types/types';
+import UserDropdownButton from './components/UserButton';
 
 //
 
@@ -210,6 +211,8 @@ const Page: React.FC = () => {
         if (assistant_zustand.name === 'Select an Assistant') {
             // setThreads([]);
             useGlobalStore.setState({ threads: [{ thread_id: "", thread_name: "" }] })
+            setMessages([]);
+            modifyThread({ thread_id: "", thread_name: "" })
             return;
         }
         axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
@@ -220,9 +223,10 @@ const Page: React.FC = () => {
                 // setThreads(response.data);
                 // useGlobalStore.setState({ assistant: { id: selectedAssistant.id, name: selectedAssistant.name } });
                 modifyThreads(response.data)
+                modifyThread({ thread_id: "", thread_name: "" })
             })
             .catch(error => console.error('Error fetching threads', error));
-    }, [assistant_zustand.name, newChat, jwtToken_zustand, modifyThreads]);
+    }, [assistant_zustand.name, newChat, jwtToken_zustand, modifyThreads, modifyThread]);
 
     // useEffect(() => {
     //     if (!selectedAssistant.id) {
@@ -396,7 +400,6 @@ const Page: React.FC = () => {
                 <VStack spacing={8} mt={12}>
                     { }
                     <Heading>{displayAssistantName()}</Heading>
-                    {jwtToken_zustand ? <Text>LOGGED IN</Text> : <Text>JWT Token not available</Text>}
                 </VStack>
             </Container>
             <div style={{ display: 'flex', flexDirection: 'row', minHeight: '25vh', alignItems: 'center', minWidth: '100vw' }}>
@@ -407,29 +410,34 @@ const Page: React.FC = () => {
                     <h1>Select an Assistant</h1>
                     {/* <select onChange={e => setSelectedAssistant(e.target.value)} value={selectedAssistant}> */}
                     <Select maxW="60%" onChange={handleChangeAssistant} value={assistant_zustand.id}>
-                        <option value={assistant_zustand.name}>Select an Assistant</option>
+                        <option value="">Select an Assistant</option>
                         {assistants.map(assistant => (
                             <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
                         ))}
                     </Select>
 
-                    {/* {assistant_zustand.name && ( */}
-                    <div>
-                        <h2>Select a Thread</h2>
-                        <Select maxW="60%" onChange={handleChangeThread} value={thread_zustand.thread_id}>
-                            <option value="">Select a thread</option>
-                            {threads_zustand.map(thread => (
-                                <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_name}</option>
-                            ))}
-                        </Select>
-                    </div>
-                    {/* )} */}
+                    {assistant_zustand.id && (
+                        <div>
+                            <h2>Select a Thread</h2>
+                            <Select maxW="60%" onChange={handleChangeThread} value={thread_zustand.thread_id}>
+                                <option value="">Select a thread</option>
+                                {threads_zustand.map(thread => (
+                                    <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_name}</option>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
 
-                    <div>
-                        <Button marginTop="20px" maxW="30%" onClick={handleNewChat} >New Chat</Button>
-                    </div>
-                    <DropdownButton marginTop="20px"></DropdownButton>
+                    {assistant_zustand.id && (
+                        <div>
+                            <Button marginTop="20px" maxW="30%" onClick={handleNewChat} >New Chat</Button>
+                        </div>
+                    )}
+                    {jwtToken_zustand && (
+                        <UserDropdownButton marginTop="20px"></UserDropdownButton>
+                    )}
                 </div>
+
 
                 {/* Main content in the middle */}
                 <div style={{ flex: '3', textAlign: 'center' }}>
@@ -443,11 +451,13 @@ const Page: React.FC = () => {
                                 ))
 
                             ) : (
-                                <Text alignSelf="center" marginTop="20px">No messages yet</Text>
+                                <Text alignSelf="center" marginTop="20px">You can start talking to the selected Youtube Channel.</Text>
                             )}
                             <div ref={endOfMessagesRef} />
                         </VStack>
-                        <ChatBox thread_id={thread_zustand.thread_id} assistant_id={assistant_zustand.id} jwtToken={jwtToken_zustand} setMessages={setMessages}></ChatBox>
+                        {thread_zustand.thread_id && (
+                            <ChatBox thread_id={thread_zustand.thread_id} assistant_id={assistant_zustand.id} jwtToken={jwtToken_zustand} setMessages={setMessages}></ChatBox>
+                        )}
                     </Box>
                 </div>
 

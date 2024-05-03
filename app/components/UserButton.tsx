@@ -18,7 +18,7 @@ const CircleIcon = (props: any) => (
 )
 
 
-function DropdownButton(props: any) {
+function UserDropdownButton(props: any) {
     const router = useRouter();
     return (
         <Menu>
@@ -34,4 +34,4 @@ function DropdownButton(props: any) {
     );
 }
 
-export default DropdownButton;
+export default UserDropdownButton;

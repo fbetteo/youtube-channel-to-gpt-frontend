@@ -12,7 +12,7 @@ interface GlobalState {
     modifyjwtToken: (jwtToken: string) => Promise<string>,
     modifyAssistant: (assistant: Assistant) => void,
     modifyThreads: (threads: Thread[]) => void,
-    modifyThread: (thread: Thread) => void
+    modifyThread: (thread: Thread) => void,
 
 }
 

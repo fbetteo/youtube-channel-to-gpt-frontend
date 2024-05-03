@@ -3,7 +3,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useGlobalStore } from '../store/store';
 import axios from 'axios';
 import { UserData, sessionData } from '../types/types';
-
+import { v4 as uuidv4 } from 'uuid';
 
 
 // async function checkSession(): Promise<void> {
@@ -48,13 +48,20 @@ async function checkSession(): Promise<sessionData | undefined> {
         // Perform additional actions with the JWT token
         const resource = await modifyjwtToken(jwt_token);
         console.log('Resource data:', resource);
-        const subscription = await axios.get<UserData>(process.env.NEXT_PUBLIC_API_URL + '/get_user_data', {
-            headers: { "Authorization": `Bearer ${jwt_token}` }
-            // Include additional data as needed
-        })
-        modifySubscription(subscription.data.subscription)
+        try {
+            const subscription = await axios.get<UserData>(process.env.NEXT_PUBLIC_API_URL + '/get_user_data', {
+                headers: { "Authorization": `Bearer ${jwt_token}` }
+                // Include additional data as needed
+            })
+            modifySubscription(subscription.data.subscription)
+            return { "jwtToken": resource, "userData": subscription.data };
 
-        return { "jwtToken": resource, "userData": subscription.data };
+        } catch (error) {
+            console.error('User Just Signed up', error);
+            const subscription = { data: { uuid: uuidv4(), email: "", subscription: "free", count_messages: 0 } }
+            return { "jwtToken": resource, "userData": subscription.data };
+        }
+
 
     } catch (error) {
         console.error('Error getting the token', error);

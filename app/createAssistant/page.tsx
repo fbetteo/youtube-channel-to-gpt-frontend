@@ -7,6 +7,9 @@ import { useToast, Button } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
+import BackHomeButton from '../components/BackHomeButton';
+
+
 const CreateAssistant = () => {
     const router = useRouter();
     const [channelName, setChannelName] = useState<string>('');
@@ -82,7 +85,7 @@ const CreateAssistant = () => {
                     <strong className={styles.note}>
                         Please enter the Youtube channel name without the &apos;@&apos; symbol.
                     </strong>
-                    <label htmlFor="channelName">Channel Name:</label>
+                    <label htmlFor="channelName"></label>
                     <input
                         id="channelName"
                         value={channelName}
@@ -93,16 +96,16 @@ const CreateAssistant = () => {
                     />
 
                     <strong className={styles.note}>
-                        Please enter your assistant name without the &apos;@&apos; symbol.
+                        Please enter your Youtube AI name.
                     </strong>
-                    <p>This is how you will name the AI assistant for future reference</p>
-                    <label htmlFor="assistantName">AI Assistant Name:</label>
+                    <p>This is how you will name it for future reference</p>
+                    <label htmlFor="assistantName"></label>
                     <input
                         id="assistantName"
                         value={assistantName}
                         onChange={(e) => setAssistantName(e.target.value)}
                         required
-                        placeholder="MrBeast Assistant"
+                        placeholder="MrBeast Youtube AI"
                         className={styles.input}
                     />
 
@@ -116,6 +119,7 @@ const CreateAssistant = () => {
                             Submit
                         </Button>
                     )}
+                    <BackHomeButton mt={100}></BackHomeButton>
                 </form>
             </ChakraProvider>
         </AuthProvider>

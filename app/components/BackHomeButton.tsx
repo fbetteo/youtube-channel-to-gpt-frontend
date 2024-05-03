@@ -1,12 +1,13 @@
 'use client'
 import {
-    Button
+    Button, ButtonProps
 } from '@chakra-ui/react';
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/navigation';
 
 
-function BackHomeButton() {
+
+function BackHomeButton(props: ButtonProps) {
     const router = useRouter();
     return (
         <Button
@@ -15,6 +16,8 @@ function BackHomeButton() {
             size='lg'
             leftIcon={<ArrowBackIcon />}
             onClick={() => router.push('/')}
+            {...props}
+
         >Go back to home page
         </Button>
     );
