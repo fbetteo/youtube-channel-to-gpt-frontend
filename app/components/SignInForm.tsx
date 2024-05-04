@@ -80,7 +80,7 @@ const SignInForm: React.FC = () => {
             </FormControl>
             <Button
                 mt={4}
-                colorScheme="teal"
+                colorScheme="blue"
                 isLoading={loading}
                 type="submit"
                 loadingText="Signing In"

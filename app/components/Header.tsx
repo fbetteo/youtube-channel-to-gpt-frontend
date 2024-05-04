@@ -9,6 +9,7 @@ const Header: React.FC = () => {
     const bgColor = useColorModeValue('white', 'gray.800');
     const shadow = useColorModeValue('sm', 'none');
     const jwtToken = useGlobalStore(state => state.jwtToken);
+    const email = useGlobalStore(state => state.email);
     const subscription = useGlobalStore(state => state.subscription);
 
     return (
@@ -67,8 +68,10 @@ const Header: React.FC = () => {
             ) : (
                 <Box>
                     <Flex alignItems="center" justifyContent="space-between">
-                        <Text fontSize="lg" fontWeight="bold" color="teal.600"> You have a {subscription} subscription</Text>
+                        <Text fontSize="lg" fontWeight="bold" color="teal.600"> Hi {email}</Text>
+                        <Text fontSize="lg" fontWeight="bold" color="teal.600" ml={3}> You have a {subscription} subscription</Text>
                         <Button
+                            // mt={4}
                             ml={4}
                             variant="solid"
                             colorScheme="teal"

@@ -137,7 +137,7 @@ const SubscriptionButton = () => {
             onClick={handleSubscription}
             disabled={isLoading}
         >
-            Subscribe
+            Get the Gold Plan
         </Button>
     );
 }

@@ -4,11 +4,13 @@ import { Assistant, Thread } from '../types/types';
 
 interface GlobalState {
     jwtToken: string,
+    email: string,
     subscription: string,
     assistant: Assistant,
     threads: Thread[],
     thread: Thread,
     modifySubscription: (new_subscription: string) => void,
+    modifyEmail: (new_email: string) => void,
     modifyjwtToken: (jwtToken: string) => Promise<string>,
     modifyAssistant: (assistant: Assistant) => void,
     modifyThreads: (threads: Thread[]) => void,
@@ -22,10 +24,12 @@ interface GlobalState {
 export const useGlobalStore = create<GlobalState>()(persist(
     (set) => ({
         jwtToken: "",
+        email:"",
         subscription: "",
         assistant: { id: "", name: "" },
         threads: [{ thread_id:"", thread_name: "" }],
-        thread: { thread_id:"", thread_name: "" },
+        thread: { thread_id: "", thread_name: "" },
+        modifyEmail: (new_email: string) => set(() => ({ email: new_email })),
         modifySubscription: (new_subscription: string) => set(() => ({ subscription: new_subscription })),
         modifyjwtToken: (new_jwtToken: string) => {
             return new Promise((resolve) => {
@@ -43,6 +47,6 @@ export const useGlobalStore = create<GlobalState>()(persist(
     {
         name: 'my-partial-store', // unique name for storage
         getStorage: () => sessionStorage, // or localStorage for longer persistence
-        partialize: (state) => ({ jwtToken: state.jwtToken, subscription: state.subscription, assistant: state.assistant, threads: state.threads, thread: state.thread }), 
+        partialize: (state) => ({ jwtToken: state.jwtToken, email: state.email, subscription: state.subscription, assistant: state.assistant, threads: state.threads, thread: state.thread }), 
     }
 ));

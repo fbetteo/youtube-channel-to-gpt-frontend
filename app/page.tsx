@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { ChakraProvider } from '@chakra-ui/react'
-import { Container, Heading, Box, VStack, Text, Input, Button, Select, useToast } from '@chakra-ui/react';
+import { Container, Heading, Box, VStack, Text, Input, Button, Select, useToast, Image } from '@chakra-ui/react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthProvider } from '../contexts/AuthContext'; // no tuve exito con esto , lo dejo ahi por ahora
 import ChatBox from './components/ChatBox';
@@ -404,17 +404,43 @@ const Page: React.FC = () => {
             </Container>
             <div style={{ display: 'flex', flexDirection: 'row', minHeight: '25vh', alignItems: 'center', minWidth: '100vw' }}>
                 {/* Sidebar with select buttons */}
-                <div style={{ flex: '1' }}>
-                    <Button maxW="30%" onClick={redirectToCreateAssistantForm}>Create Assistant</Button>
 
-                    <h1>Select an Assistant</h1>
-                    {/* <select onChange={e => setSelectedAssistant(e.target.value)} value={selectedAssistant}> */}
-                    <Select maxW="60%" onChange={handleChangeAssistant} value={assistant_zustand.id}>
-                        <option value="">Select an Assistant</option>
-                        {assistants.map(assistant => (
-                            <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
-                        ))}
-                    </Select>
+                <div style={{ flex: '1' }}>
+                    {jwtToken_zustand ? (
+                        <div>
+                            <Button maxW="30%" onClick={redirectToCreateAssistantForm}>Create Assistant</Button>
+
+
+                            <h2>Select an Assistant</h2>
+                            {/* <select onChange={e => setSelectedAssistant(e.target.value)} value={selectedAssistant}> */}
+                            <Select maxW="60%" onChange={handleChangeAssistant} value={assistant_zustand.id}>
+                                <option value="">Select an Assistant</option>
+                                {assistants.map(assistant => (
+                                    <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
+                                ))}
+                            </Select>
+                        </div>
+                    ) : (
+                        <Box maxW="md" mx="auto" textAlign="center" p={8} borderWidth="1px" borderRadius="lg" boxShadow="lg">
+                            {/* <Image
+                                borderRadius="full"
+                                boxSize="100px"
+                                src="/images/youtube-icon.png"
+                                alt="YouTube Icon"
+                                mx="auto"
+                                mb={4}
+                            /> */}
+                            <Heading as="h2" size="lg" fontWeight="bold" mb={3}>
+                                Sign up for free to start chatting with your favorite YouTube Channel.
+                            </Heading>
+                            <Text fontSize="md" color="gray.600" mb={6}>
+                                No credit card required.
+                            </Text>
+                            <Button colorScheme="red" size="lg" onClick={() => router.push('/signup')}>
+                                Get Started
+                            </Button>
+                        </Box>
+                    )}
 
                     {assistant_zustand.id && (
                         <div>

@@ -21,7 +21,7 @@ const SettingsPage: React.FC = () => {
                 <BackHomeButton></BackHomeButton>
             </Box> */}
             <VStack w="100%" p={4} spacing={10} align="start">  {/* Increased spacing and wrapped items in VStack */}
-                <Heading ml={40} mb={6}>Settings</Heading>
+                <Heading ml={40} mb={6} mt={12}>Settings</Heading>
 
                 <Box w="100%">
                     <Heading size="md" mb={2}>Change Password</Heading>

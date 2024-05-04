@@ -12,7 +12,7 @@ import { supabase } from '../utils/supabaseClient'; // Make sure this path is co
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useGlobalStore } from '../store/store';
 const SignOutButton: React.FC = () => {
-    const { modifyjwtToken, modifyAssistant, modifyThread, modifyThreads, modifySubscription } = useGlobalStore.getState();
+    const { modifyjwtToken, modifyAssistant, modifyThread, modifyThreads, modifySubscription, modifyEmail } = useGlobalStore.getState();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const toast = useToast();
@@ -46,6 +46,7 @@ const SignOutButton: React.FC = () => {
             modifyThread({ thread_id: "", thread_name: "" })
             modifyThreads([{ thread_id: "", thread_name: "" }])
             modifySubscription("")
+            modifyEmail("")
             await new Promise(resolve => setTimeout(resolve, 2000));
             router.push('/');
         }
@@ -56,7 +57,7 @@ const SignOutButton: React.FC = () => {
         <Button
             onClick={handleSignOut}
             mt={4}
-            colorScheme="teal"
+            colorScheme="blue"
             isLoading={loading}
             type="submit"
             loadingText="Signing Out"
@@ -67,3 +68,4 @@ const SignOutButton: React.FC = () => {
 };
 
 export default SignOutButton;
+
