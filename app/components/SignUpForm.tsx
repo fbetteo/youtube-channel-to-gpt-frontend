@@ -32,7 +32,7 @@ const SignUpForm: React.FC = () => {
             email,
             password,
             options: {
-                emailRedirectTo: process.env.NEXT_PUBLIC_FRONTEND_URL + '/auth/callback',
+                emailRedirectTo: process.env.NEXT_PUBLIC_FRONTEND_URL,
             },
         });
 
