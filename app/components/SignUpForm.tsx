@@ -32,7 +32,7 @@ const SignUpForm: React.FC = () => {
             email,
             password,
             options: {
-                emailRedirectTo: 'http://localhost:3000/auth/callback',
+                emailRedirectTo: process.env.FRONTEND_URL + '/auth/callback',
             },
         });
 
