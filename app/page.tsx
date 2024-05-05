@@ -374,6 +374,12 @@ const Page: React.FC = () => {
         endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    useEffect(() => {
+        if (messages.length > 0) {
+            scrollToBottom();
+        }
+    }, [messages]);
+
     // Example function to handle sending new messages
     // In a real application, you would also send this to your backend
     // const sendMessage = (message: string) => {
