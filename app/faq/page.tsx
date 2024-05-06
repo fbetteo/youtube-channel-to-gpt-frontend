@@ -13,7 +13,7 @@ const Faq = () => {
                     <h2>
                         <AccordionButton>
                             <Box flex="1" textAlign="left">
-                                What's the purpose of this website?
+                                What&apos;s the purpose of this website?
                             </Box>
                             <AccordionIcon />
                         </AccordionButton>
@@ -37,7 +37,7 @@ const Faq = () => {
                         <br />
                         <ul>
                             <li> * summarise content of videos</li>
-                            <li> * ask for specific content that they don't remember where it was mentioned</li>
+                            <li> * ask for specific content that they don&apos;t remember where it was mentioned</li>
                             <li> * talk to the channel as if they were talking to the owner for entertainment</li>
                             <li> * etc. </li>
                         </ul>
@@ -99,7 +99,7 @@ const Faq = () => {
                         </AccordionButton>
                     </h2>
                     <AccordionPanel pb={4}>
-                        We don't store any message, we only store your basic data and the channels you picked. Authentication is handle by a third party service, we don't have access to your password neither.
+                        We don&apos;t store any message, we only store your basic data and the channels you picked. Authentication is handle by a third party service, we don&apos;t have access to your password neither.
                     </AccordionPanel>
                 </AccordionItem>
             </Accordion>

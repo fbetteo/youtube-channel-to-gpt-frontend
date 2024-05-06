@@ -243,7 +243,7 @@ const Page: React.FC = () => {
                 modifyThreads(response.data)
             })
             .catch(error => console.error('Error fetching threads', error));
-    }, [newChat]);
+    }, [newChat, assistant_zustand.name, jwtToken_zustand, modifyThreads, modifyThread]);
 
     // useEffect(() => {
     //     if (!selectedAssistant.id) {

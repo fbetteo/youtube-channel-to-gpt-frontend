@@ -181,7 +181,7 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
                         <Box display="flex" alignItems="center" marginBottom={4}>
                             <InfoIcon color="blue.500" w={8} h={8} mr={2} />
                             <Text fontSize="md">
-                                You've reached your maximum number of free actions. Upgrade now to continue getting the most of Youtube without interruption.
+                                You have reached your maximum number of free actions. Upgrade now to continue getting the most of Youtube without interruption.
                             </Text>
                         </Box>
                         <Box backgroundColor={useColorModeValue('blue.50', 'blue.900')} p={4} borderRadius="lg">
