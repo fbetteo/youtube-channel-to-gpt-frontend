@@ -133,12 +133,12 @@ const CreateAssistant = () => {
 
                     {/* Include additional form fields as needed */}
                     {isLoading ? (
-                        <Button isLoading loadingText="Submitting" disabled>
+                        <Button isLoading loadingText="Creating AI. This can take a minute" disabled>
                             Submit
                         </Button>
                     ) : (
                         <Button type="submit" colorScheme="blue">
-                            Submit
+                            Create AI
                         </Button>
                     )}
                     <BackHomeButton mt={100}></BackHomeButton>
