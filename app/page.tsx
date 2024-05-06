@@ -333,12 +333,12 @@ const Page: React.FC = () => {
 
     const displayAssistantName = () => {
         if (!assistant_zustand.name) {
-            return "Select an AI to talk to!";
+            return <div>{"Select an AI to talk to!"}</div>
         } else if (assistant_zustand.name === "Select an AI") {
-            return "Select an AI to talk to!";
-        } else {
-            return "Chatting with " + assistant_zustand.name;
+            return <div>{"Select an AI to talk to!"}</div>
         }
+
+        return <div>{"Chatting with " + assistant_zustand.name}</div>
     };
 
     const redirectToCreateAssistantForm = () => {
