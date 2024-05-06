@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useGlobalStore } from '../store/store';
 import axios from 'axios';
@@ -34,14 +34,16 @@ import { v4 as uuidv4 } from 'uuid';
 async function checkSession(): Promise<sessionData | undefined> {
     const { modifyjwtToken, modifySubscription } = useGlobalStore.getState();
     const supabase = createClientComponentClient()
+    const maxRetries = 3;
     try {
         const sessionResult = await supabase.auth.getSession();
         const jwt_token = sessionResult?.data?.session?.access_token;
 
         console.log(jwt_token + " checkSession");
 
+
         if (!jwt_token) {
-            console.error("JWT token is not available.");
+            console.error("JWT token is not available")
             return undefined;
         }
 

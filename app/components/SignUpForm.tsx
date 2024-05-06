@@ -51,23 +51,24 @@ const SignUpForm: React.FC = () => {
             },
         });
 
-        console.log(error + "error")
+        // console.log(error + "error")
 
-        const sessioncheck = await checkSession();
-        // The order matters so it doesn't try to log jwtToken_zustand before the session check is over? Worked fine this way but if I log jwtToken_zustand before sessioncheck it's undefined!
-        console.log(sessioncheck + "session check")
-        console.log(jwtToken_zustand + "jwt token check")
+        // const sessioncheck = await checkSession();
+        // // The order matters so it doesn't try to log jwtToken_zustand before the session check is over? Worked fine this way but if I log jwtToken_zustand before sessioncheck it's undefined!
+        // console.log(sessioncheck + "session check")
+        // console.log(jwtToken_zustand + "jwt token check")
 
 
-        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/users', {
+        // const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/users', {
 
-            email: email, subscription: 'free'
-        }
-            // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
-            , { headers: { "Authorization": `Bearer ${sessioncheck?.jwtToken}` } }
-        );
+        //     email: email, subscription: 'free'
+        // }
+        //     // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
+        //     , { headers: { "Authorization": `Bearer ${sessioncheck?.jwtToken}` } }
+        // );
 
-        if (error || response.status !== 200) {
+        // if (error || response.status !== 200) {
+        if (error) {
 
             toast({
                 title: 'Error signing up.',
@@ -86,7 +87,7 @@ const SignUpForm: React.FC = () => {
             });
 
 
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 4000));
             router.push('/');
         }
         setLoading(false);
