@@ -39,7 +39,7 @@ async function checkSession(): Promise<sessionData | undefined> {
         const sessionResult = await supabase.auth.getSession();
         const jwt_token = sessionResult?.data?.session?.access_token;
 
-        console.log(jwt_token + " checkSession");
+        // console.log(jwt_token + " checkSession");
 
 
         if (!jwt_token) {
@@ -49,7 +49,7 @@ async function checkSession(): Promise<sessionData | undefined> {
 
         // Perform additional actions with the JWT token
         const resource = await modifyjwtToken(jwt_token);
-        console.log('Resource data:', resource);
+        // console.log('Resource data:', resource);
         try {
             const subscription = await axios.get<UserData>(process.env.NEXT_PUBLIC_API_URL + '/get_user_data', {
                 headers: { "Authorization": `Bearer ${jwt_token}` }

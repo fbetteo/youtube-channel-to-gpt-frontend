@@ -198,7 +198,7 @@ const Page: React.FC = () => {
         })
             // .then(response => console.log(response.data))
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 setAssistants(response.data);
 
             })
@@ -266,7 +266,7 @@ const Page: React.FC = () => {
             // Include additional data as needed
         })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 setMessages(response.data)
             })
             .catch(error => console.error('Error fetching messages', error));

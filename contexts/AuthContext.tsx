@@ -19,9 +19,9 @@ export const AuthProvider = ({ children }: any) => {
             setSession(session)
             setUser(session?.user)
             setLoading(false);
-            console.log("authcontext")
-            console.log(session)
-            console.log(session?.user)
+            // console.log("authcontext")
+            // console.log(session)
+            // console.log(session?.user)
         };
 
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {

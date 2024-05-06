@@ -91,7 +91,7 @@ const SubscriptionButton = () => {
         const createCheckoutSession = async () => {
             if (uuid) {
                 setIsLoading(true); // Start loading when initiating API request
-                console.log("uuid SUBSCRIPTION BUTTON", uuid);
+                // console.log("uuid SUBSCRIPTION BUTTON", uuid);
                 try {
                     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`, { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken_zustand}` } });
                     if (response.data.url) {
@@ -126,7 +126,7 @@ const SubscriptionButton = () => {
     const handleSubscription = async () => {
         setIsLoading(true); // Ensure button shows loading state immediately
         const sessionCheck = await checkSession();
-        console.log(sessionCheck);
+        // console.log(sessionCheck);
         setUuid(sessionCheck?.userData?.uuid);
     };
 

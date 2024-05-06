@@ -13,7 +13,7 @@ const useCheckSession = () => {
         supabase.auth.getSession()
             .then(async (session) => {
                 const jwt_token = session?.data?.session?.access_token;
-                console.log(jwt_token + "pepepep USE EFFECT");
+                // console.log(jwt_token + "pepepep USE EFFECT");
                 if (!jwt_token) {
                     console.error("JWT token is not available.");
                     return;
@@ -26,8 +26,8 @@ const useCheckSession = () => {
                         headers: { "Authorization": `Bearer ${jwt_token}` }
                         // Include additional data as needed
                     })
-                    console.log(subscription.data)
-                    console.log("USE EFFECT CHECK SESSion")
+                    // console.log(subscription.data)
+                    // console.log("USE EFFECT CHECK SESSion")
                     modifySubscription(subscription.data.subscription)
                     modifyEmail(subscription.data.email)
 

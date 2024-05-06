@@ -45,7 +45,7 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // Function to handle input changes
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
-        console.log("Input value:", event.target.value);
+        // console.log("Input value:", event.target.value);
     };
     // Function to handle the send button click
     const handleSendClick = async () => {
