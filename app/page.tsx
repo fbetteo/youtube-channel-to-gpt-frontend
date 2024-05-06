@@ -468,7 +468,7 @@ const Page: React.FC = () => {
                     textAlign="center"
                     maxW="lg"  // Limits maximum width to improve readability
                 >
-                    You can start talking to {assistant_zustand.name}. Ask what you want, such as "Create a summary of your last video."
+                    You can start talking to {assistant_zustand.name}. Ask what you want, such as &quot;Create a summary of your last video.&quot;
                 </Text>
             </Box>
         );
