@@ -1,8 +1,14 @@
-import { Box, Input, Button, useToast } from '@chakra-ui/react';
+import { Box, Input, Button, useToast, Text } from '@chakra-ui/react';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import checkSession from '../utils/checkSession';
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter } from '@chakra-ui/react';
+import {
+    Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter, useColorModeValue, List,
+    ListItem,
+    ListIcon
+} from '@chakra-ui/react';
+import { InfoIcon, CheckCircleIcon } from '@chakra-ui/icons';
+import { useRouter } from 'next/navigation';
 interface Message {
     id: number;
     role: string;
@@ -18,6 +24,7 @@ interface Props {
 
 const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // State to hold the input value
+    const router = useRouter();
     const [inputValue, setInputValue] = useState('');
     const [uuid, setUuid] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
@@ -25,6 +32,7 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     const [checkoutUrl, setCheckoutUrl] = useState('');
     // Chakra UI's toast for feedback
     const toast = useToast();
+    const modalBackground = useColorModeValue('white', 'gray.700');
 
     useEffect(() => {
         // Redirect when a valid checkout URL is set
@@ -70,6 +78,7 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
                 setInputValue('');
                 console.log('Message sent:', response.data);
                 setMessages(response.data);
+
 
 
                 const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
@@ -125,6 +134,11 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
                 placeholder="Type your message here..."
                 value={inputValue}
                 onChange={handleInputChange}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        handleSendClick();
+                    }
+                }}
             />
             <Button
                 colorScheme="blue"
@@ -135,17 +149,73 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
             >
                 Send
             </Button>
-            <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false) }}>
+            {/* <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
                 <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Action Limit Reached</ModalHeader>
+                <ModalContent backgroundColor={modalBackground}>
+                    <ModalHeader fontSize="lg" fontWeight="bold">Action Limit Reached</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        You have reached your maximum number of free actions. Please upgrade to continue.
+                        <Box display="flex" alignItems="center" marginBottom={4}>
+                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
+                            <Text fontSize="md">
+                                You've reached your maximum number of free actions. Upgrade now to continue without interruption.
+                            </Text>
+                        </Box>
                     </ModalBody>
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={handleCheckout}>
-                            Subscribe
+                        <Button colorScheme="red" mr={3} size="lg" onClick={handleCheckout}>
+                            Subscribe Now
+                        </Button>
+                        <Button variant="ghost" onClick={() => setModalOpen(false)}>
+                            Learn More
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal> */}
+            <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
+                <ModalOverlay />
+                <ModalContent backgroundColor={modalBackground}>
+                    <ModalHeader fontSize="lg" fontWeight="bold">Free trial finished</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Box display="flex" alignItems="center" marginBottom={4}>
+                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
+                            <Text fontSize="md">
+                                You've reached your maximum number of free actions. Upgrade now to continue getting the most of Youtube without interruption.
+                            </Text>
+                        </Box>
+                        <Box backgroundColor={useColorModeValue('blue.50', 'blue.900')} p={4} borderRadius="lg">
+                            <Text fontSize="md" fontWeight="bold" mb={2}>Benefits of Subscribing:</Text>
+                            <List spacing={2}>
+                                <ListItem>
+                                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                                    Access up to 3 different Youtube channels
+                                </ListItem>
+                                <ListItem>
+                                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                                    Send up to 100 messages per month
+                                </ListItem>
+                                <ListItem>
+                                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                                    Unlimited access to new features
+                                </ListItem>
+                                <ListItem>
+                                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                                    Direct support from our team
+                                </ListItem>
+                                <ListItem>
+                                    <ListIcon as={CheckCircleIcon} color="green.500" />
+                                    Cancel anytime
+                                </ListItem>
+                            </List>
+                        </Box>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button colorScheme="blue" mr={3} size="lg" onClick={handleCheckout}>
+                            Subscribe Now
+                        </Button>
+                        <Button variant="ghost" onClick={() => router.push("/faq")}>
+                            Learn More
                         </Button>
                     </ModalFooter>
                 </ModalContent>

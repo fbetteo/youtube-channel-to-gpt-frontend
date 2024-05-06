@@ -23,10 +23,9 @@ const SettingsPage: React.FC = () => {
             <VStack w="100%" p={4} spacing={10} align="start">  {/* Increased spacing and wrapped items in VStack */}
                 <Heading ml={40} mb={6} mt={12}>Settings</Heading>
 
-                <Box w="100%">
+                {/* <Box w="100%">
                     <Heading size="md" mb={2}>Change Password</Heading>
-                    {/* Placeholder for change password form */}
-                </Box>
+                </Box> */}
 
                 <Box w="100%" mt={10}>
                     <Heading size="md" mb={2}>Subscription</Heading>

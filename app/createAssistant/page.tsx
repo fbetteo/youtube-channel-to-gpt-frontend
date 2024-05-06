@@ -8,7 +8,9 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 import BackHomeButton from '../components/BackHomeButton';
-
+import { Tooltip, IconButton, Image } from '@chakra-ui/react';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody } from '@chakra-ui/react';
 
 const CreateAssistant = () => {
     const router = useRouter();
@@ -82,18 +84,38 @@ const CreateAssistant = () => {
                 <form onSubmit={handleSubmit} className={styles.formContainer}>
                     {/* <form onSubmit={handleSubmit} >
                     <div className={styles.formTitle}>Create Assistant</div> */}
-                    <strong className={styles.note}>
-                        Please enter the Youtube channel name without the &apos;@&apos; symbol.
-                    </strong>
-                    <label htmlFor="channelName"></label>
-                    <input
-                        id="channelName"
-                        value={channelName}
-                        onChange={(e) => setChannelName(e.target.value)}
-                        required
-                        placeholder="MrBeast"
-                        className={styles.input}
-                    />
+                    <div>
+                        <strong className={styles.note}>
+                            Please enter the Youtube channel name without the &apos;@&apos; symbol.
+                        </strong>
+                        <label htmlFor="channelName"></label>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <input
+                                id="channelName"
+                                value={channelName}
+                                onChange={(e) => setChannelName(e.target.value)}
+                                required
+                                placeholder="MrBeast"
+                                className={styles.input}
+                            />
+                            <Popover>
+                                <PopoverTrigger>
+                                    <IconButton
+                                        aria-label="Information about channel name"
+                                        icon={<InfoOutlineIcon />}
+                                        variant="ghost"
+                                    />
+                                </PopoverTrigger>
+                                <PopoverContent width="auto" maxWidth="90%">
+                                    <PopoverArrow />
+                                    <PopoverCloseButton />
+                                    <PopoverBody>
+                                        <Image src="/mrbeast_info.png" alt="Channel name example" maxW="100%" />
+                                    </PopoverBody>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
 
                     <strong className={styles.note}>
                         Please enter your Youtube AI name.

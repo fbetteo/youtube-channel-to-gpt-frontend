@@ -53,6 +53,12 @@ const Header: React.FC = () => {
                         variant="outline"
                         colorScheme="teal"
                         mr={4}
+                        onClick={() => router.push('/faq')}
+                    > FAQ</Button>
+                    <Button
+                        variant="outline"
+                        colorScheme="teal"
+                        mr={4}
                         onClick={() => router.push('/signin')}
                     >
                         Sign In
@@ -70,6 +76,13 @@ const Header: React.FC = () => {
                     <Flex alignItems="center" justifyContent="space-between">
                         <Text fontSize="lg" fontWeight="bold" color="teal.600"> Hi {email}</Text>
                         <Text fontSize="lg" fontWeight="bold" color="teal.600" ml={3}> You have a {subscription} subscription</Text>
+                        <Button ml={4}
+                            variant="outline"
+                            colorScheme="teal"
+                            mr={4}
+                            onClick={() => router.push('/faq')}
+                        > FAQ</Button>
+
                         <Button
                             // mt={4}
                             ml={4}

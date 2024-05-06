@@ -86,8 +86,8 @@ const Page: React.FC = () => {
     const [userId, setUserId] = useState<string | null>(null);
     const [userData, setUserData] = useState<any>(null);
 
-    const [initialMount, setInitialMount] = useState<boolean>(true);
-
+    // const [initialMount, setInitialMount] = useState<boolean>(true);
+    const isMounted = useRef(false);
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     // const [selectedAssistant, setSelectedAssistant] = useState<string>('');
     const [selectedAssistant, setSelectedAssistant] = useState({ id: '', name: '' });
@@ -208,13 +208,31 @@ const Page: React.FC = () => {
     }, [jwtToken_zustand]);
 
     useEffect(() => {
-        if (assistant_zustand.name === 'Select an Assistant') {
-            // setThreads([]);
-            useGlobalStore.setState({ threads: [{ thread_id: "", thread_name: "" }] })
-            setMessages([]);
-            modifyThread({ thread_id: "", thread_name: "" })
-            return;
+        if (isMounted.current) {
+            if (assistant_zustand.name === 'Select an AI') {
+                // setThreads([]);
+                useGlobalStore.setState({ threads: [{ thread_id: "", thread_name: "" }] })
+                setMessages([]);
+                modifyThread({ thread_id: "", thread_name: "" })
+                return;
+            }
+            axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
+                headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
+                // Include additional data as needed
+            })
+                .then(response => {
+                    // setThreads(response.data);
+                    // useGlobalStore.setState({ assistant: { id: selectedAssistant.id, name: selectedAssistant.name } });
+                    modifyThreads(response.data)
+                    modifyThread({ thread_id: "", thread_name: "" })
+                })
+                .catch(error => console.error('Error fetching threads', error));
+        } else {
+            isMounted.current = true;
         }
+    }, [assistant_zustand.name, jwtToken_zustand, modifyThreads, modifyThread]);
+
+    useEffect(() => {
         axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
             headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
             // Include additional data as needed
@@ -223,10 +241,9 @@ const Page: React.FC = () => {
                 // setThreads(response.data);
                 // useGlobalStore.setState({ assistant: { id: selectedAssistant.id, name: selectedAssistant.name } });
                 modifyThreads(response.data)
-                modifyThread({ thread_id: "", thread_name: "" })
             })
             .catch(error => console.error('Error fetching threads', error));
-    }, [assistant_zustand.name, newChat, jwtToken_zustand, modifyThreads, modifyThread]);
+    }, [newChat]);
 
     // useEffect(() => {
     //     if (!selectedAssistant.id) {
@@ -240,7 +257,7 @@ const Page: React.FC = () => {
 
     // THIS WORKS
     useEffect(() => {
-        if (!thread_zustand.thread_name) {
+        if (!thread_zustand.thread_id) {
             setMessages([]);
             return;
         }
@@ -316,9 +333,9 @@ const Page: React.FC = () => {
 
     const displayAssistantName = () => {
         if (!assistant_zustand.name) {
-            return "Select a channel to talk to!";
-        } else if (assistant_zustand.name === "Select an Assistant") {
-            return "Select a channel to talk to!";
+            return "Select an AI to talk to!";
+        } else if (assistant_zustand.name === "Select an AI") {
+            return "Select an AI to talk to!";
         } else {
             return "Chatting with " + assistant_zustand.name;
         }
@@ -355,6 +372,7 @@ const Page: React.FC = () => {
         console.log('Thread created:', response.data);
         // setThreads(response.data)
         setNewChat(true)
+        modifyThread({ thread_id: response.data.thread_id, thread_name: response.data.thread_name });
         setMessages([]);
     };
 
@@ -398,6 +416,65 @@ const Page: React.FC = () => {
     //     });
     // };
 
+    function renderFirstMessage() {
+        if (!assistant_zustand.id) {
+            // return <Text alignSelf="center" marginTop="20px">Create or select a Youtube AI </Text>
+            return (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                    <Text
+                        fontSize="2xl"        // Increases the font size for better visibility
+                        fontWeight="bold"     // Makes the text bold to catch attention
+                        color="red.500"      // Applies a color theme that stands out, yet pleasing
+                        mt="20px"             // Ensures margin top is added
+                        textAlign="center"    // Ensures the text is centered in its container
+                    >
+                        Create or select a YouTube AI
+                    </Text>
+                </Box>
+            );
+        }
+        if (assistant_zustand.id && !thread_zustand.thread_id) {
+            // return <Text alignSelf="center" marginTop="20px">Create or Select a thread to start chatting</Text>
+            return (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                    <Text
+                        fontSize="2xl"        // Increases the font size for better visibility
+                        fontWeight="bold"     // Makes the text bold to catch attention
+                        color="red.500"      // Applies a color theme that stands out, yet pleasing
+                        mt="20px"             // Ensures margin top is added
+                        textAlign="center"    // Ensures the text is centered in its container
+                    >
+                        Create or Select a conversation to start chatting
+                    </Text>
+                </Box>
+            );
+        }
+
+        // return <Text alignSelf="center" marginTop="20px">You can start talking to {assistant_zustand.name}. Ask what you want, such as "Create a summary of your last video"</Text>
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100vh"
+                bg="gray.50"  // Adds a subtle background color for the entire view
+                px={{ base: 4, md: 8 }}  // Responsive padding
+            >
+                <Text
+                    fontSize={{ base: 'xl', md: '2xl' }}  // Responsive font size
+                    fontWeight="bold"
+                    color="red.500"
+                    mt="20px"
+                    textAlign="center"
+                    maxW="lg"  // Limits maximum width to improve readability
+                >
+                    You can start talking to {assistant_zustand.name}. Ask what you want, such as "Create a summary of your last video."
+                </Text>
+            </Box>
+        );
+
+    }
+
 
     return (
         <ChakraProvider>
@@ -414,13 +491,13 @@ const Page: React.FC = () => {
                 <div style={{ flex: '1' }}>
                     {jwtToken_zustand ? (
                         <div>
-                            <Button maxW="30%" onClick={redirectToCreateAssistantForm}>Create Assistant</Button>
+                            <Button maxW="30%" onClick={redirectToCreateAssistantForm}>Create Youtube AI</Button>
 
 
-                            <h2>Select an Assistant</h2>
+                            <h2>Select an AI</h2>
                             {/* <select onChange={e => setSelectedAssistant(e.target.value)} value={selectedAssistant}> */}
                             <Select maxW="60%" onChange={handleChangeAssistant} value={assistant_zustand.id}>
-                                <option value="">Select an Assistant</option>
+                                <option value="">Select an AI</option>
                                 {assistants.map(assistant => (
                                     <option key={assistant.id} value={assistant.id}>{assistant.name}</option>
                                 ))}
@@ -450,9 +527,9 @@ const Page: React.FC = () => {
 
                     {assistant_zustand.id && (
                         <div>
-                            <h2>Select a Thread</h2>
+                            <h2>Select a conversation</h2>
                             <Select maxW="60%" onChange={handleChangeThread} value={thread_zustand.thread_id}>
-                                <option value="">Select a thread</option>
+                                <option value="">Select a conversation</option>
                                 {threads_zustand.map(thread => (
                                     <option key={thread.thread_id} value={thread.thread_id}>{thread.thread_name}</option>
                                 ))}
@@ -462,7 +539,7 @@ const Page: React.FC = () => {
 
                     {assistant_zustand.id && (
                         <div>
-                            <Button marginTop="20px" maxW="30%" onClick={handleNewChat} >New Chat</Button>
+                            <Button marginTop="20px" maxW="30%" onClick={handleNewChat} >New Conversation</Button>
                         </div>
                     )}
                     {jwtToken_zustand && (
@@ -483,7 +560,8 @@ const Page: React.FC = () => {
                                 ))
 
                             ) : (
-                                <Text alignSelf="center" marginTop="20px">You can start talking to the selected Youtube Channel.</Text>
+                                // <Text alignSelf="center" marginTop="20px">You can start talking to the selected Youtube Channel.</Text>
+                                renderFirstMessage()
                             )}
                             <div ref={endOfMessagesRef} />
                         </VStack>
