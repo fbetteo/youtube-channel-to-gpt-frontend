@@ -38,7 +38,7 @@ const SignUpForm: React.FC = () => {
             setpasswordError('');
         }
     };
-
+    //
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
