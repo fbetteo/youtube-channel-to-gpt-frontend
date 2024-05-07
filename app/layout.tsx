@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   title: 'Chat with any Youtube Channel using AI',
   description: 'Chat with any Youtube Channel using AI',
 };
-
+//
 export default function RootLayout({
   children,
 }: {
