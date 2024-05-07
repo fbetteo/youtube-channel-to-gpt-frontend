@@ -27,7 +27,7 @@ const CreateAssistant = () => {
         supabase.auth.getSession()
             .then((session) => {
                 const jwt_token = session?.data?.session?.access_token;
-                console.log(jwt_token + "pepepep");
+                // console.log(jwt_token + "pepepep");
                 if (!jwt_token) {
                     console.error("JWT token is not available.");
                     return;

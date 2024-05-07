@@ -30,7 +30,7 @@ import './globals.css';
 import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
 import Header from './components/Header'; // Make sure the path is correct
-
+import { CSPostHogProvider } from './providers'
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -49,14 +49,16 @@ export default function RootLayout({
         {/* Ensure you have a Head component for meta tags, like title and description */}
         {/* <style>{inter.style}</style> */}
       </head>
-      <body className={inter.className}>
-        <ChakraProvider>
-          {/* Header component included here, it will be displayed on every page */}
-          <Header />
-          {/* This is where the content of your pages will be rendered */}
-          <main style={{ paddingTop: '4rem' }}>{children}</main>
-        </ChakraProvider>
-      </body>
+      <CSPostHogProvider>
+        <body className={inter.className}>
+          <ChakraProvider>
+            {/* Header component included here, it will be displayed on every page */}
+            <Header />
+            {/* This is where the content of your pages will be rendered */}
+            <main style={{ paddingTop: '4rem' }}>{children}</main>
+          </ChakraProvider>
+        </body>
+      </CSPostHogProvider>
     </html>
   );
 }
