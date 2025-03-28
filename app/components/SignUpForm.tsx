@@ -8,10 +8,8 @@ import {
     useToast,
     FormHelperText, FormErrorMessage
 } from '@chakra-ui/react';
-import { createBrowserClient } from '@supabase/ssr';
-import axios from 'axios';
-import checkSession from '../utils/checkSession';
 import { useGlobalStore } from '../store/store';
+import { supabase } from '@/app/lib/supabase/client'
 
 const SignUpForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -21,11 +19,6 @@ const SignUpForm: React.FC = () => {
     const router = useRouter();
     const [passwordError, setpasswordError] = useState('');
 
-    // to use cookies, you need to use the createBrowserClient function
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newPassword = e.target.value;
@@ -46,9 +39,9 @@ const SignUpForm: React.FC = () => {
         const { error } = await supabase.auth.signUp({
             email,
             password,
-            options: {
-                emailRedirectTo: process.env.NEXT_PUBLIC_FRONTEND_URL,
-            },
+            // options: {
+            //     emailRedirectTo: process.env.NEXT_PUBLIC_FRONTEND_URL,
+            // },
         });
 
         // console.log(error + "error")
