@@ -11,6 +11,7 @@ import {
 import { createBrowserClient } from "@supabase/ssr"
 import { useGlobalStore } from '../store/store';
 import { supabase } from '@/app/lib/supabase/client'
+import { fetchUserData } from '../lib/fetchUserData';
 
 const SignInForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ const SignInForm: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const toast = useToast();
     const router = useRouter();
+    const { modifySubscription, modifyEmail } = useGlobalStore.getState();
 
 
     const handleSignIn = async (e: React.FormEvent) => {
@@ -49,7 +51,12 @@ const SignInForm: React.FC = () => {
                 duration: 9000,
                 isClosable: true,
             });
+            const userData = await fetchUserData()
             await new Promise(resolve => setTimeout(resolve, 2000));
+            if (userData) {
+                modifySubscription(userData.subscription)
+                modifyEmail(userData.email)
+            }
             router.push('/');
         }
         setLoading(false);

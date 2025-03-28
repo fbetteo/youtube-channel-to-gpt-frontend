@@ -1,21 +1,19 @@
 // app/page.tsx
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { ChakraProvider } from '@chakra-ui/react'
 import { Container, Heading, Box, VStack, Text, Input, Button, Select, useToast, Image } from '@chakra-ui/react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { AuthProvider } from '../contexts/AuthContext'; // no tuve exito con esto , lo dejo ahi por ahora
 import ChatBox from './components/ChatBox';
 import DropdownButton from './components/UserButton';
 import { create, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
-import useCheckSession from './utils/useCheckSession';
 import { useGlobalStore } from './store/store';
 import { Assistant, Thread, Message } from './types/types';
 import UserDropdownButton from './components/UserButton';
+import { fetchWithAuth } from './lib/fetchWithAuth';
 
+import { useAuth } from './context/AuthContext'
 //
 
 // interface Assistant {
@@ -85,6 +83,7 @@ const Page: React.FC = () => {
 
     const [userId, setUserId] = useState<string | null>(null);
     const [userData, setUserData] = useState<any>(null);
+    const { isAuthenticated, isLoading } = useAuth();
 
     // const [initialMount, setInitialMount] = useState<boolean>(true);
     const isMounted = useRef(false);
@@ -102,12 +101,10 @@ const Page: React.FC = () => {
 
     const router = useRouter();
     console.log(process.env.NEXT_PUBLIC_API_URL);
-    const supabase = createClientComponentClient()
 
     const assistant_zustand = useGlobalStore(state => state.assistant)
     const thread_zustand = useGlobalStore(state => state.thread)
     const threads_zustand = useGlobalStore(state => state.threads)
-    const jwtToken_zustand = useGlobalStore(state => state.jwtToken)
     const { modifyThread, modifyAssistant, modifyThreads } = useGlobalStore()
     console.log(assistant_zustand.name + "zustand")
     console.log(thread_zustand.thread_name + "zustand thread")
@@ -185,27 +182,39 @@ const Page: React.FC = () => {
     //     // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
     // }, []);
 
-    useCheckSession();
+    // useCheckSession();
 
+    // useEffect(() => {
+    //     if (!jwtToken_zustand) {
+    //         setAssistants([]);
+    //         return;
+    //     }
+    //     axios.get<Assistant[]>(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected', {
+    //         headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
+    //         // Include additional data as needed
+    //     })
+    //         // .then(response => console.log(response.data))
+    //         .then((response) => {
+    //             // console.log(response.data);
+    //             setAssistants(response.data);
+
+    //         })
+    //         // .then(console.log(assistants)
+    //         .catch(error => console.error('Error fetching channels', error));
+
+    // }, [jwtToken_zustand]);
     useEffect(() => {
-        if (!jwtToken_zustand) {
-            setAssistants([]);
-            return;
-        }
-        axios.get<Assistant[]>(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected', {
-            headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
-            // Include additional data as needed
-        })
-            // .then(response => console.log(response.data))
-            .then((response) => {
-                // console.log(response.data);
-                setAssistants(response.data);
-
+        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected')
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
             })
-            // .then(console.log(assistants)
+            .then(data => {
+                setAssistants(data);
+                console.log(data + " assistants data")
+            })
             .catch(error => console.error('Error fetching channels', error));
-
-    }, [jwtToken_zustand]);
+    }, []);
 
     useEffect(() => {
         if (isMounted.current) {
@@ -216,34 +225,34 @@ const Page: React.FC = () => {
                 modifyThread({ thread_id: "", thread_name: "" })
                 return;
             }
-            axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
-                headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
-                // Include additional data as needed
-            })
+            fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`)
                 .then(response => {
-                    // setThreads(response.data);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // setThreads(data);
                     // useGlobalStore.setState({ assistant: { id: selectedAssistant.id, name: selectedAssistant.name } });
-                    modifyThreads(response.data)
+                    modifyThreads(data)
                     modifyThread({ thread_id: "", thread_name: "" })
                 })
                 .catch(error => console.error('Error fetching threads', error));
         } else {
             isMounted.current = true;
         }
-    }, [assistant_zustand.name, jwtToken_zustand, modifyThreads, modifyThread]);
+    }, [assistant_zustand.name, modifyThreads, modifyThread]);
 
     useEffect(() => {
-        axios.get<Thread[]>(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`, {
-            headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
-            // Include additional data as needed
-        })
+        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`)
             .then(response => {
-                // setThreads(response.data);
-                // useGlobalStore.setState({ assistant: { id: selectedAssistant.id, name: selectedAssistant.name } });
-                modifyThreads(response.data)
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                modifyThreads(data);
             })
             .catch(error => console.error('Error fetching threads', error));
-    }, [newChat, assistant_zustand.name, jwtToken_zustand, modifyThreads, modifyThread]);
+    }, [newChat, assistant_zustand.name, modifyThreads, modifyThread]);
 
     // useEffect(() => {
     //     if (!selectedAssistant.id) {
@@ -261,16 +270,17 @@ const Page: React.FC = () => {
             setMessages([]);
             return;
         }
-        axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_zustand.id + '/' + thread_zustand.thread_id, {
-            headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
-            // Include additional data as needed
-        })
-            .then((response) => {
+        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_zustand.id + '/' + thread_zustand.thread_id)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
                 // console.log(response.data);
-                setMessages(response.data)
+                setMessages(data)
             })
             .catch(error => console.error('Error fetching messages', error));
-    }, [thread_zustand.thread_id, assistant_zustand.id, jwtToken_zustand, thread_zustand.thread_name]);
+    }, [thread_zustand.thread_id, assistant_zustand.id, thread_zustand.thread_name]);
 
     // useEffect(() => {
     //     axios.get<Message[]>(process.env.NEXT_PUBLIC_API_URL + '/messages/' + selectedAssistant.id + '/' + selectedThread.id, {
@@ -365,15 +375,31 @@ const Page: React.FC = () => {
     };
 
     const handleNewChat = async () => {
-        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/threads/' + assistant_zustand.name, null, {
+        try {
+            const response = await fetchWithAuth(
+                process.env.NEXT_PUBLIC_API_URL + '/threads/' + assistant_zustand.name,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: null  // or JSON.stringify({}) if you need to send an empty object
+                }
+            );
 
-            headers: { "Authorization": `Bearer ${jwtToken_zustand}` }
-        });
-        console.log('Thread created:', response.data);
-        // setThreads(response.data)
-        setNewChat(true)
-        modifyThread({ thread_id: response.data.thread_id, thread_name: response.data.thread_name });
-        setMessages([]);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            console.log('Thread created:', data);
+
+            setNewChat(true);
+            modifyThread({ thread_id: data.thread_id, thread_name: data.thread_name });
+            setMessages([]);
+        } catch (error) {
+            console.error('Error creating new thread:', error);
+        }
     };
 
 
@@ -489,7 +515,7 @@ const Page: React.FC = () => {
                 {/* Sidebar with select buttons */}
 
                 <div style={{ flex: '1' }}>
-                    {jwtToken_zustand ? (
+                    {isAuthenticated ? (
                         <div>
                             <Button maxW="30%" onClick={redirectToCreateAssistantForm}>Create Youtube AI</Button>
 
@@ -542,7 +568,7 @@ const Page: React.FC = () => {
                             <Button marginTop="20px" maxW="30%" onClick={handleNewChat} >New Conversation</Button>
                         </div>
                     )}
-                    {jwtToken_zustand && (
+                    {isAuthenticated && (
                         <UserDropdownButton marginTop="20px"></UserDropdownButton>
                     )}
                 </div>
@@ -566,7 +592,7 @@ const Page: React.FC = () => {
                             <div ref={endOfMessagesRef} />
                         </VStack>
                         {thread_zustand.thread_id && (
-                            <ChatBox thread_id={thread_zustand.thread_id} assistant_id={assistant_zustand.id} jwtToken={jwtToken_zustand} setMessages={setMessages}></ChatBox>
+                            <ChatBox thread_id={thread_zustand.thread_id} assistant_id={assistant_zustand.id} setMessages={setMessages}></ChatBox>
                         )}
                     </Box>
                 </div>

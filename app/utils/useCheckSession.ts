@@ -1,12 +1,15 @@
 import { useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { useGlobalStore } from '../store/store';
 import axios from 'axios';
 import { UserData } from '../types/types';
 
 
 const useCheckSession = () => {
-    const supabase = createClientComponentClient()
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const {jwtToken, modifyjwtToken, modifySubscription, modifyEmail} = useGlobalStore();
 
     useEffect(() => {
@@ -61,25 +64,5 @@ const useCheckSession = () => {
         // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
     }, [jwtToken, modifyjwtToken, modifySubscription, modifyEmail ]);
 };
-
-
-
-// const CheckSession = () => {
-//     const supabase = createClientComponentClient()
-//     const {modifyjwtToken} = useGlobalStore();
-
-//         supabase.auth.getSession()
-//             .then((session) => {
-//                 const jwt_token = session?.data?.session?.access_token;
-//                 console.log(jwt_token + "checkSession");
-//                 if (!jwt_token) {
-//                     console.error("JWT token is not available.");
-//                     return;
-//                 }
-//                 modifyjwtToken(jwt_token);
-//             })
-//             .catch(error => console.error('Error getting the token', error));
-//         // Assuming you have a function `getJwtToken` that synchronously retrieves the JWT token
-//     };
 
 export default useCheckSession;

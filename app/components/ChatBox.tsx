@@ -1,7 +1,6 @@
 import { Box, Input, Button, useToast, Text } from '@chakra-ui/react';
-import axios from 'axios';
 import { useState, useEffect } from 'react';
-import checkSession from '../utils/checkSession';
+// import checkSession from '../utils/checkSession';
 import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter, useColorModeValue, List,
     ListItem,
@@ -9,6 +8,8 @@ import {
 } from '@chakra-ui/react';
 import { InfoIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/navigation';
+import { fetchWithAuth } from '@/app/lib/fetchWithAuth';
+import { fetchUserData } from '@/app/lib/fetchUserData';
 interface Message {
     id: number;
     role: string;
@@ -18,11 +19,10 @@ interface Message {
 interface Props {
     thread_id: string;
     assistant_id: string;
-    jwtToken: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
-const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
+const ChatBox = ({ thread_id, assistant_id, setMessages }: Props) => {
     // State to hold the input value
     const router = useRouter();
     const [inputValue, setInputValue] = useState('');
@@ -50,41 +50,58 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // Function to handle the send button click
     const handleSendClick = async () => {
         // Here, you can add the logic to process the message, like sending it to a server
-        const sessioncheck = await checkSession();
+        const userData = await fetchUserData();
         console.log("Sending message:", inputValue);
         console.log("Thread ID:", thread_id);
         setLoading(true);
-        setUuid(sessioncheck?.userData.uuid);
+        setUuid(userData?.uuid);
 
 
 
-        if (sessioncheck?.userData.subscription === 'free' && sessioncheck?.userData.count_messages >= 3) {
+        if (userData?.subscription === 'free' && userData?.count_messages >= 3) {
             setModalOpen(true);
 
         }
 
         else {
             try {
-                const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
+                // const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
 
-                    params: {
-                        content: inputValue
-                        // Include additional data as needed
-                    }, headers: { "Authorization": `Bearer ${jwtToken}` }
-                });
+                //     params: {
+                //         content: inputValue
+                //         // Include additional data as needed
+                //     }, headers: { "Authorization": `Bearer ${jwtToken}` }
+                // });
+                const response = await fetchWithAuth(
+                    `${process.env.NEXT_PUBLIC_API_URL}/messages/${assistant_id}/${thread_id}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    }
+                );
 
-
+                const responseData = await response.json();
                 // Resetting input field after send
                 setInputValue('');
-                console.log('Message sent:', response.data);
-                setMessages(response.data);
+                console.log('Message sent:', responseData);
+                setMessages(responseData);
 
 
-
-                const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
-                    // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
-                    , { headers: { "Authorization": `Bearer ${jwtToken}` } }
+                const responseMessageCount = await fetchWithAuth(
+                    `${process.env.NEXT_PUBLIC_API_URL}/increment_user_messages`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    }
                 );
+                // const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
+                //     // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
+                //     , { headers: { "Authorization": `Bearer ${jwtToken}` } }
+                // );
 
                 // Providing feedback to the user
                 setLoading(false);
@@ -112,9 +129,20 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
 
     const handleCheckout = async () => {
         // Call backend to create a Stripe checkout session
-        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/create-checkout-session', { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken}` } });
-        if (response.data.url) {
-            setCheckoutUrl(response.data.url);  // Trigger redirection via useEffect
+        // const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/create-checkout-session', { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken}` } });
+
+        const response = await fetchWithAuth(
+            `${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+        const responseData = await response.json();
+        if (responseData.data.url) {
+            setCheckoutUrl(responseData.data.url);  // Trigger redirection via useEffect
         } else {
             // Handle error (e.g., show an error message)
             toast({

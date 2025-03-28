@@ -14,7 +14,6 @@ import checkSession from '../utils/checkSession';
 import { useGlobalStore } from '../store/store';
 
 const SignUpForm: React.FC = () => {
-    const jwtToken_zustand = useGlobalStore(state => state.jwtToken)
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);

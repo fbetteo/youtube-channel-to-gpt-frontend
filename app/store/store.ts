@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 import { Assistant, Thread } from '../types/types';
 
 interface GlobalState {
-    jwtToken: string,
     email: string,
     subscription: string,
     assistant: Assistant,
@@ -11,7 +10,6 @@ interface GlobalState {
     thread: Thread,
     modifySubscription: (new_subscription: string) => void,
     modifyEmail: (new_email: string) => void,
-    modifyjwtToken: (jwtToken: string) => Promise<string>,
     modifyAssistant: (assistant: Assistant) => void,
     modifyThreads: (threads: Thread[]) => void,
     modifyThread: (thread: Thread) => void,
@@ -23,7 +21,6 @@ interface GlobalState {
 
 export const useGlobalStore = create<GlobalState>()(persist(
     (set) => ({
-        jwtToken: "",
         email:"",
         subscription: "",
         assistant: { id: "", name: "" },
@@ -31,12 +28,6 @@ export const useGlobalStore = create<GlobalState>()(persist(
         thread: { thread_id: "", thread_name: "" },
         modifyEmail: (new_email: string) => set(() => ({ email: new_email })),
         modifySubscription: (new_subscription: string) => set(() => ({ subscription: new_subscription })),
-        modifyjwtToken: (new_jwtToken: string) => {
-            return new Promise((resolve) => {
-              set({ jwtToken: new_jwtToken });
-              resolve(new_jwtToken);
-            });
-          },
         // modifyjwtToken: (new_jwtToken: string) => set(() => ({ jwtToken: new_jwtToken })),
         modifyAssistant: (new_assistant: Assistant) => set(() => ({ assistant: new_assistant })),
         modifyThreads(threads) {
@@ -47,6 +38,6 @@ export const useGlobalStore = create<GlobalState>()(persist(
     {
         name: 'my-partial-store', // unique name for storage
         getStorage: () => sessionStorage, // or localStorage for longer persistence
-        partialize: (state) => ({ jwtToken: state.jwtToken, email: state.email, subscription: state.subscription, assistant: state.assistant, threads: state.threads, thread: state.thread }), 
+        partialize: (state) => ({ email: state.email, subscription: state.subscription, assistant: state.assistant, threads: state.threads, thread: state.thread }), 
     }
 ));

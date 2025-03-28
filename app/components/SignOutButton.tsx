@@ -12,7 +12,7 @@ import { supabase } from '@/app/lib/supabase/client'
 
 import { useGlobalStore } from '../store/store';
 const SignOutButton: React.FC = () => {
-    const { modifyjwtToken, modifyAssistant, modifyThread, modifyThreads, modifySubscription, modifyEmail } = useGlobalStore.getState();
+    const { modifyAssistant, modifyThread, modifyThreads, modifySubscription, modifyEmail } = useGlobalStore.getState();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const toast = useToast();
@@ -40,7 +40,6 @@ const SignOutButton: React.FC = () => {
                 duration: 9000,
                 isClosable: true,
             });
-            modifyjwtToken("")
             modifyAssistant({ id: "", name: "" })
             modifyThread({ thread_id: "", thread_name: "" })
             modifyThreads([{ thread_id: "", thread_name: "" }])

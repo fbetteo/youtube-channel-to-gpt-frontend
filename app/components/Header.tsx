@@ -3,14 +3,15 @@ import React from 'react';
 import { Box, Flex, Button, useColorModeValue, Spacer, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useGlobalStore } from '../store/store';
+import { useAuth } from '../context/AuthContext';
 
 const Header: React.FC = () => {
     const router = useRouter();
     const bgColor = useColorModeValue('white', 'gray.800');
     const shadow = useColorModeValue('sm', 'none');
-    const jwtToken = useGlobalStore(state => state.jwtToken);
     const email = useGlobalStore(state => state.email);
     const subscription = useGlobalStore(state => state.subscription);
+    const { isAuthenticated, isLoading } = useAuth();
 
     return (
         <Flex
@@ -43,7 +44,7 @@ const Header: React.FC = () => {
                 {/* Navigation or branding elements can go here */}
             </Box>
 
-            {!jwtToken ? (
+            {!isAuthenticated ? (
 
                 <Box
                     display={{ base: 'none', md: 'block' }}

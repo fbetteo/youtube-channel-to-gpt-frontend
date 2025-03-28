@@ -1,13 +1,15 @@
-
 import { Session, User } from '@supabase/supabase-js';
 import { useContext, useState, useEffect, createContext } from 'react';
-// import { supabaseClient } from '../config/supabase-client';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
+
 // create a context for authentication
 const AuthContext = createContext<{ session: Session | null | undefined, user: User | null | undefined, signOut: () => void }>({ session: null, user: null, signOut: () => { } });
 
 export const AuthProvider = ({ children }: any) => {
-    const supabase = createClientComponentClient() //https://supabase.com/docs/guides/auth/auth-helpers/nextjs?language=ts
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const [user, setUser] = useState<User>()
     const [session, setSession] = useState<Session | null>();
     const [loading, setLoading] = useState(true);

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from './form.module.css'
 import { useToast, Button } from '@chakra-ui/react';
 import { ChakraProvider } from '@chakra-ui/react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 import BackHomeButton from '../components/BackHomeButton';
 import { Tooltip, IconButton, Image } from '@chakra-ui/react';
@@ -20,7 +20,10 @@ const CreateAssistant = () => {
     const [isLoading, setIsLoading] = useState(false); // Loading state
     const [jwtToken, setJwtToken] = useState<string>('');
     // Add more state as needed for additional form fields
-    const supabase = createClientComponentClient();
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
 
     useEffect(() => {
