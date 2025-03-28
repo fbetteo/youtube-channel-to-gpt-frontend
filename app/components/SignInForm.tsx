@@ -8,9 +8,9 @@ import {
     Button,
     useToast,
 } from '@chakra-ui/react';
-// import { supabase } from '../utils/supabaseClient'; // Make sure this path is correct
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createBrowserClient } from "@supabase/ssr"
 import { useGlobalStore } from '../store/store';
+import { supabase } from '@/app/lib/supabase/client'
 
 const SignInForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -19,8 +19,6 @@ const SignInForm: React.FC = () => {
     const toast = useToast();
     const router = useRouter();
 
-    // to use cookies, you need to use the createClientComponentClient function
-    const supabase = createClientComponentClient() //https://supabase.com/docs/guides/auth/auth-helpers/nextjs?language=ts
 
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault();

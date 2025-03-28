@@ -8,8 +8,7 @@ import {
     useToast,
     FormHelperText, FormErrorMessage
 } from '@chakra-ui/react';
-// import { supabase } from '../utils/supabaseClient'; // Ensure this path is correct
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import axios from 'axios';
 import checkSession from '../utils/checkSession';
 import { useGlobalStore } from '../store/store';
@@ -23,9 +22,11 @@ const SignUpForm: React.FC = () => {
     const router = useRouter();
     const [passwordError, setpasswordError] = useState('');
 
-    // to use cookies, you need to use the createClientComponentClient function
-    const supabase = createClientComponentClient() //https://supabase.com/docs/guides/auth/auth-helpers/nextjs?language=ts
-
+    // to use cookies, you need to use the createBrowserClient function
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newPassword = e.target.value;
