@@ -73,7 +73,7 @@ const ChatBox = ({ thread_id, assistant_id, setMessages }: Props) => {
                 //     }, headers: { "Authorization": `Bearer ${jwtToken}` }
                 // });
                 const response = await fetchWithAuth(
-                    `${process.env.NEXT_PUBLIC_API_URL}/messages/${assistant_id}/${thread_id}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/messages/${assistant_id}/${thread_id}?content=${encodeURIComponent(inputValue)}`,
                     {
                         method: 'POST',
                         headers: {
@@ -128,23 +128,38 @@ const ChatBox = ({ thread_id, assistant_id, setMessages }: Props) => {
 
 
     const handleCheckout = async () => {
-        // Call backend to create a Stripe checkout session
-        // const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/create-checkout-session', { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken}` } });
+        try {
+            const response = await fetchWithAuth(
+                `${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_uuid: uuid })
+                }
+            );
+            const responseData = await response.json();
+            console.log("Checkout response:", responseData); // Log the response to see its structure
 
-        const response = await fetchWithAuth(
-            `${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+            // Check if the URL exists in the expected structure, or alternative structures
+            if (responseData?.data?.url) {
+                setCheckoutUrl(responseData.data.url);
+            } else if (responseData?.url) {
+                setCheckoutUrl(responseData.url);
+            } else {
+                // Handle error (e.g., show an error message)
+                toast({
+                    title: 'An error occurred.',
+                    description: 'Unable to create checkout session. Please try again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                    position: 'top',
+                });
             }
-        );
-        const responseData = await response.json();
-        if (responseData.data.url) {
-            setCheckoutUrl(responseData.data.url);  // Trigger redirection via useEffect
-        } else {
-            // Handle error (e.g., show an error message)
+        } catch (error) {
+            console.error('Checkout error:', error);
             toast({
                 title: 'An error occurred.',
                 description: 'Unable to create checkout session. Please try again.',
