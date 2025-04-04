@@ -29,6 +29,7 @@ const Page: React.FC = () => {
     const { modifyThread, modifyAssistant, modifyThreads } = useGlobalStore()
     const bgColor = useColorModeValue('gray.50', 'gray.800');
     const inputBg = useColorModeValue('white', 'gray.700');
+    const welcomeBg = useColorModeValue('gray.50', 'gray.800');
 
     useEffect(() => {
         fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected')
@@ -307,7 +308,7 @@ const Page: React.FC = () => {
                             align="center"
                             h="100%"
                             spacing={6}
-                            bg={useColorModeValue('gray.50', 'gray.800')}
+                            bg={welcomeBg}
                             borderRadius="lg"
                             p={8}
                         >
