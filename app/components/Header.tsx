@@ -12,6 +12,8 @@ const Header = () => {
     const { isOpen, onToggle } = useDisclosure();
     const bg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
+    const navBg = useColorModeValue('white', 'gray.800');
+    const dividerColor = useColorModeValue('gray.200', 'gray.700');
 
     return (
         <Box
@@ -108,7 +110,8 @@ const Header = () => {
                     p={4}
                     display={{ md: 'none' }}
                     spacing={4}
-                    divider={<Box borderBottom="1px" borderColor={borderColor} w="100%" />}
+                    bg={navBg}
+                    divider={<Box borderBottom="1px" borderColor={dividerColor} w="100%" />}
                 >
                     <Button w="full" variant="ghost" onClick={() => router.push('/faq')}>
                         FAQ
