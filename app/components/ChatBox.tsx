@@ -1,4 +1,4 @@
-import { Box, Input, Button, useToast, Text } from '@chakra-ui/react';
+import { Box, Input, Button, useToast, Text, Flex, Container, InputGroup, InputRightElement, VStack } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 // import checkSession from '../utils/checkSession';
 import {
@@ -10,6 +10,9 @@ import { InfoIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/navigation';
 import { fetchWithAuth } from '@/app/lib/fetchWithAuth';
 import { fetchUserData } from '@/app/lib/fetchUserData';
+import ChatMessage from './ChatMessage';
+import SubscriptionModal from './SubscriptionModal';
+
 interface Message {
     id: number;
     role: string;
@@ -20,9 +23,10 @@ interface Props {
     thread_id: string;
     assistant_id: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    messages: Message[]; // Add this prop
 }
 
-const ChatBox = ({ thread_id, assistant_id, setMessages }: Props) => {
+const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
     // State to hold the input value
     const router = useRouter();
     const [inputValue, setInputValue] = useState('');
@@ -172,98 +176,86 @@ const ChatBox = ({ thread_id, assistant_id, setMessages }: Props) => {
     };
 
     return (
-        <Box mt={4}>
-            <Input
-                placeholder="Type your message here..."
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                        handleSendClick();
-                    }
-                }}
+        <Container maxW="container.xl" h="calc(100vh - 100px)" p={4}>
+            <Flex direction="column" h="100%" position="relative">
+                <Box
+                    flex="1"
+                    mb={4}
+                    overflowY="auto"
+                    borderRadius="md"
+                    bg={useColorModeValue('gray.50', 'gray.700')}
+                    p={4}
+                    css={{
+                        '&::-webkit-scrollbar': {
+                            width: '4px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            background: useColorModeValue('gray.300', 'gray.600'),
+                            borderRadius: '24px',
+                        },
+                    }}
+                >
+                    <VStack spacing={4} align="stretch">
+                        {messages?.map((message) => (
+                            <ChatMessage
+                                key={message.id}
+                                role={message.role}
+                                text={message.text}
+                            />
+                        ))}
+                    </VStack>
+                </Box>
+
+                <Box
+                    position="sticky"
+                    bottom={0}
+                    bg={useColorModeValue('white', 'gray.800')}
+                    p={4}
+                    borderTopWidth="1px"
+                    borderRadius="md"
+                    boxShadow="sm"
+                >
+                    <Flex gap={2}>
+                        <InputGroup size="lg">
+                            <Input
+                                placeholder="Type your message here..."
+                                value={inputValue}
+                                onChange={handleInputChange}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' && !event.shiftKey) {
+                                        handleSendClick();
+                                    }
+                                }}
+                                pr="4.5rem"
+                                bg={useColorModeValue('white', 'gray.700')}
+                            />
+                            <InputRightElement width="4.5rem" pr={1}>
+                                <Button
+                                    h="1.75rem"
+                                    size="sm"
+                                    colorScheme="blue"
+                                    isLoading={loading}
+                                    loadingText="Sending..."
+                                    onClick={handleSendClick}
+                                >
+                                    Send
+                                </Button>
+                            </InputRightElement>
+                        </InputGroup>
+                    </Flex>
+                </Box>
+            </Flex>
+
+            <SubscriptionModal
+                isOpen={isModalOpen}
+                onClose={() => { setModalOpen(false); setLoading(false); }}
+                onSubscribe={handleCheckout}
+                onLearnMore={() => router.push("/faq")}
             />
-            <Button
-                colorScheme="blue"
-                mt={2}
-                isLoading={loading}
-                loadingText="Answering your question..."
-                onClick={() => { handleSendClick(); }}
-            >
-                Send
-            </Button>
-            {/* <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
-                <ModalOverlay />
-                <ModalContent backgroundColor={modalBackground}>
-                    <ModalHeader fontSize="lg" fontWeight="bold">Action Limit Reached</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Box display="flex" alignItems="center" marginBottom={4}>
-                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
-                            <Text fontSize="md">
-                                You've reached your maximum number of free actions. Upgrade now to continue without interruption.
-                            </Text>
-                        </Box>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="red" mr={3} size="lg" onClick={handleCheckout}>
-                            Subscribe Now
-                        </Button>
-                        <Button variant="ghost" onClick={() => setModalOpen(false)}>
-                            Learn More
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> */}
-            <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
-                <ModalOverlay />
-                <ModalContent backgroundColor={modalBackground}>
-                    <ModalHeader fontSize="lg" fontWeight="bold">Free trial finished</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Box display="flex" alignItems="center" marginBottom={4}>
-                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
-                            <Text fontSize="md">
-                                You have reached your maximum number of free actions. Upgrade now to continue getting the most of Youtube without interruption.
-                            </Text>
-                        </Box>
-                        <Box backgroundColor={useColorModeValue('blue.50', 'blue.900')} p={4} borderRadius="lg">
-                            <Text fontSize="md" fontWeight="bold" mb={2}>Benefits of Subscribing:</Text>
-                            <List spacing={2}>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Access up to 3 different Youtube channels
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Send up to 100 messages per month
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Unlimited access to new features
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Direct support from our team
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Cancel anytime
-                                </ListItem>
-                            </List>
-                        </Box>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="blue" mr={3} size="lg" onClick={handleCheckout}>
-                            Subscribe Now
-                        </Button>
-                        <Button variant="ghost" onClick={() => router.push("/faq")}>
-                            Learn More
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </Box>
+        </Container>
     );
 };
 

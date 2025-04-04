@@ -1,102 +1,152 @@
 'use client';
 import React from 'react';
-import { Box, Flex, Button, useColorModeValue, Spacer, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { useGlobalStore } from '../store/store';
+import { Box, Button, Flex, HStack, IconButton, useColorMode, useColorModeValue, Image, useDisclosure, VStack, Collapse } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 
-const Header: React.FC = () => {
+const Header = () => {
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
-    const bgColor = useColorModeValue('white', 'gray.800');
-    const shadow = useColorModeValue('sm', 'none');
-    const email = useGlobalStore(state => state.email);
-    const subscription = useGlobalStore(state => state.subscription);
-    const { isAuthenticated, isLoading } = useAuth();
+    const { colorMode, toggleColorMode } = useColorMode();
+    const { isOpen, onToggle } = useDisclosure();
+    const bg = useColorModeValue('white', 'gray.800');
+    const borderColor = useColorModeValue('gray.200', 'gray.700');
 
     return (
-        <Flex
-            as="nav"
-            align="center"
-            justify="space-between"
-            wrap="wrap"
-            padding="1.5rem"
-            bg={bgColor}
-            color="teal.500"
+        <Box
             position="fixed"
             top="0"
-            right="0"
-            left="0"
+            w="100%"
             zIndex="1000"
-            boxShadow={shadow}
+            bg={bg}
+            boxShadow="sm"
+            borderBottom="1px"
+            borderColor={borderColor}
         >
-            <Box display={{ base: 'block', md: 'none' }} onClick={() => {/* Toggle functionality can be added here for mobile menus */ }}>
-                {/* Icons or logo can be placed here */}
-            </Box>
-
-            <Spacer />
-
-            <Box
-                display="flex"
-                width={{ base: 'full', md: 'auto' }}
-                alignItems="center"
-                flexGrow={1}
+            <Flex
+                minH={'60px'}
+                py={{ base: 2 }}
+                px={{ base: 4, md: 8 }}
+                align={'center'}
+                justify={'space-between'}
             >
-                {/* Navigation or branding elements can go here */}
-            </Box>
-
-            {!isAuthenticated ? (
-
-                <Box
-                    display={{ base: 'none', md: 'block' }}
-                    mt={{ base: 4, md: 0 }}
+                {/* Logo and Brand */}
+                <Flex
+                    flex={{ base: 1 }}
+                    justify={{ base: 'start', md: 'start' }}
+                    align="center"
                 >
-                    <Button
-                        variant="outline"
-                        colorScheme="teal"
-                        mr={4}
-                        onClick={() => router.push('/faq')}
-                    > FAQ</Button>
-                    <Button
-                        variant="outline"
-                        colorScheme="teal"
-                        mr={4}
-                        onClick={() => router.push('/signin')}
-                    >
-                        Sign In
-                    </Button>
-                    <Button
-                        variant="solid"
-                        colorScheme="teal"
-                        onClick={() => router.push('/signup')}
-                    >
-                        Sign Up
-                    </Button>
-                </Box>
-            ) : (
-                <Box>
-                    <Flex alignItems="center" justifyContent="space-between">
-                        <Text fontSize="lg" fontWeight="bold" color="teal.600"> Hi {email}</Text>
-                        <Text fontSize="lg" fontWeight="bold" color="teal.600" ml={3}> You have a {subscription} subscription</Text>
-                        <Button ml={4}
-                            variant="outline"
-                            colorScheme="teal"
-                            mr={4}
-                            onClick={() => router.push('/faq')}
-                        > FAQ</Button>
+                    <Image
+                        src="/logo.png"
+                        alt="YouTube AI Logo"
+                        h="40px"
+                        cursor="pointer"
+                        onClick={() => router.push('/')}
+                    />
+                </Flex>
 
+                {/* Mobile menu button */}
+                <Flex display={{ base: 'flex', md: 'none' }}>
+                    <IconButton
+                        onClick={onToggle}
+                        icon={isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />}
+                        variant={'ghost'}
+                        aria-label={'Toggle Navigation'}
+                    />
+                </Flex>
+
+                {/* Desktop Navigation */}
+                <HStack
+                    flex={{ base: 1, md: 'auto' }}
+                    justify={'flex-end'}
+                    align={'center'}
+                    spacing={6}
+                    display={{ base: 'none', md: 'flex' }}
+                >
+                    <Button variant="ghost" onClick={() => router.push('/faq')}>
+                        FAQ
+                    </Button>
+                    <Button
+                        onClick={toggleColorMode}
+                        variant="ghost"
+                        aria-label="Toggle color mode"
+                    >
+                        {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                    </Button>
+                    {!isAuthenticated ? (
+                        <>
+                            <Button
+                                variant="outline"
+                                colorScheme="blue"
+                                onClick={() => router.push('/signin')}
+                            >
+                                Sign In
+                            </Button>
+                            <Button
+                                colorScheme="blue"
+                                onClick={() => router.push('/signup')}
+                            >
+                                Sign Up
+                            </Button>
+                        </>
+                    ) : (
                         <Button
-                            // mt={4}
-                            ml={4}
-                            variant="solid"
-                            colorScheme="teal"
-                            onClick={() => router.push('/signout')}
+                            colorScheme="blue"
+                            variant="ghost"
+                            onClick={() => router.push('/settings')}
                         >
-                            Sign Out
+                            Settings
                         </Button>
-                    </Flex>
-                </Box>
-            )}
-        </Flex>
+                    )}
+                </HStack>
+            </Flex>
+
+            {/* Mobile Navigation */}
+            <Collapse in={isOpen} animateOpacity>
+                <VStack
+                    p={4}
+                    display={{ md: 'none' }}
+                    spacing={4}
+                    divider={<Box borderBottom="1px" borderColor={borderColor} w="100%" />}
+                >
+                    <Button w="full" variant="ghost" onClick={() => router.push('/faq')}>
+                        FAQ
+                    </Button>
+                    <Button w="full" onClick={toggleColorMode} variant="ghost">
+                        {colorMode === 'light' ? 'Dark Mode' : 'Light Mode'}
+                    </Button>
+                    {!isAuthenticated ? (
+                        <>
+                            <Button
+                                w="full"
+                                variant="outline"
+                                colorScheme="blue"
+                                onClick={() => router.push('/signin')}
+                            >
+                                Sign In
+                            </Button>
+                            <Button
+                                w="full"
+                                colorScheme="blue"
+                                onClick={() => router.push('/signup')}
+                            >
+                                Sign Up
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            w="full"
+                            colorScheme="blue"
+                            variant="ghost"
+                            onClick={() => router.push('/settings')}
+                        >
+                            Settings
+                        </Button>
+                    )}
+                </VStack>
+            </Collapse>
+        </Box>
     );
 };
 
