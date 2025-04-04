@@ -27,6 +27,8 @@ const Page: React.FC = () => {
     const thread_zustand = useGlobalStore(state => state.thread)
     const threads_zustand = useGlobalStore(state => state.threads)
     const { modifyThread, modifyAssistant, modifyThreads } = useGlobalStore()
+    const bgColor = useColorModeValue('gray.50', 'gray.800');
+    const inputBg = useColorModeValue('white', 'gray.700');
 
     useEffect(() => {
         fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected')
@@ -211,7 +213,7 @@ const Page: React.FC = () => {
                     spacing={4}
                     align="stretch"
                     p={4}
-                    bg={useColorModeValue('gray.50', 'gray.800')}
+                    bg={bgColor}
                     borderRadius="lg"
                     boxShadow="sm"
                 >
@@ -236,7 +238,7 @@ const Page: React.FC = () => {
                                 placeholder="Select an AI"
                                 onChange={handleChangeAssistant}
                                 value={assistant_zustand.id}
-                                bg={useColorModeValue('white', 'gray.700')}
+                                bg={inputBg}
                             >
                                 {assistants.map(assistant => (
                                     <option key={assistant.id} value={assistant.id}>
@@ -253,7 +255,7 @@ const Page: React.FC = () => {
                                         placeholder="Select conversation"
                                         onChange={handleChangeThread}
                                         value={thread_zustand.thread_id}
-                                        bg={useColorModeValue('white', 'gray.700')}
+                                        bg={inputBg}
                                     >
                                         {threads_zustand.map(thread => (
                                             <option key={thread.thread_id} value={thread.thread_id}>

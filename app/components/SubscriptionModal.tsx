@@ -20,6 +20,8 @@ interface SubscriptionModalProps {
 const SubscriptionModal = ({ isOpen, onClose, onSubscribe, onLearnMore }: SubscriptionModalProps) => {
     const modalBackground = useColorModeValue('white', 'gray.800');
     const headerBackground = useColorModeValue('blue.50', 'blue.900');
+    const footerBg = useColorModeValue('gray.50', 'gray.900');
+    const footerBorderColor = useColorModeValue('gray.200', 'gray.700');
 
     return (
         <AnimatePresence>
@@ -85,9 +87,9 @@ const SubscriptionModal = ({ isOpen, onClose, onSubscribe, onLearnMore }: Subscr
                         </ModalBody>
 
                         <ModalFooter
-                            bg={useColorModeValue('gray.50', 'gray.900')}
+                            bg={footerBg}
                             borderTop="1px"
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}
+                            borderColor={footerBorderColor}
                         >
                             <motion.div
                                 initial={{ opacity: 0 }}
