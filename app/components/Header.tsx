@@ -3,7 +3,8 @@ import React from 'react';
 import { Box, Button, Flex, HStack, IconButton, useColorMode, useColorModeValue, Image, useDisclosure, VStack, Collapse } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { HamburgerIcon, CloseIcon, MoonIcon, SunIcon, SettingsIcon } from '@chakra-ui/icons';
+import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
 
 const Header = () => {
     const { isAuthenticated } = useAuth();
@@ -93,13 +94,19 @@ const Header = () => {
                             </Button>
                         </>
                     ) : (
-                        <Button
-                            colorScheme="blue"
-                            variant="ghost"
-                            onClick={() => router.push('/settings')}
-                        >
-                            Settings
-                        </Button>
+                        <Menu>
+                            <MenuButton
+                                as={Button}
+                                rightIcon={<SettingsIcon />}
+                                variant="ghost"
+                            >
+                                Menu
+                            </MenuButton>
+                            <MenuList>
+                                <MenuItem onClick={() => router.push('/settings')}>Settings</MenuItem>
+                                <MenuItem onClick={() => router.push('/signout')} color="red.500">Sign Out</MenuItem>
+                            </MenuList>
+                        </Menu>
                     )}
                 </HStack>
             </Flex>
@@ -138,14 +145,23 @@ const Header = () => {
                             </Button>
                         </>
                     ) : (
-                        <Button
-                            w="full"
-                            colorScheme="blue"
-                            variant="ghost"
-                            onClick={() => router.push('/settings')}
-                        >
-                            Settings
-                        </Button>
+                        <>
+                            <Button
+                                w="full"
+                                variant="ghost"
+                                onClick={() => router.push('/settings')}
+                            >
+                                Settings
+                            </Button>
+                            <Button
+                                w="full"
+                                colorScheme="red"
+                                variant="ghost"
+                                onClick={() => router.push('/signout')}
+                            >
+                                Sign Out
+                            </Button>
+                        </>
                     )}
                 </VStack>
             </Collapse>
