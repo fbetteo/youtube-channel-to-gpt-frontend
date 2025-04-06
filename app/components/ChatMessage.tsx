@@ -1,5 +1,6 @@
-import { Box, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Text, useColorModeValue, Link } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 
 const MotionBox = motion(Box);
 
@@ -14,6 +15,14 @@ const ChatMessage = ({ role, text }: ChatMessageProps) => {
         isUser ? 'blue.100' : 'gray.100',
         isUser ? 'blue.700' : 'gray.600'
     );
+
+    const renderers = {
+        a: ({ children, ...props }: React.ComponentPropsWithoutRef<'a'>) => (
+            <Link {...props} color="teal.500" isExternal>
+                {children}
+            </Link>
+        ),
+    };
 
     return (
         <MotionBox
@@ -30,7 +39,9 @@ const ChatMessage = ({ role, text }: ChatMessageProps) => {
                 borderRadius="lg"
                 boxShadow="sm"
             >
-                <Text fontSize="md">{text}</Text>
+                <Text fontSize="md">
+                    <ReactMarkdown components={renderers}>{text}</ReactMarkdown>
+                </Text>
             </Box>
         </MotionBox>
     );
