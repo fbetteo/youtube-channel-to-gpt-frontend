@@ -77,7 +77,7 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
                 //     }, headers: { "Authorization": `Bearer ${jwtToken}` }
                 // });
                 const response = await fetchWithAuth(
-                    `${process.env.NEXT_PUBLIC_API_URL}/messages/${assistant_id}/${thread_id}?content=${encodeURIComponent(inputValue)}`,
+                    `messages/${assistant_id}/${thread_id}?content=${encodeURIComponent(inputValue)}`,
                     {
                         method: 'POST',
                         headers: {
@@ -93,15 +93,15 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
                 setMessages(responseData);
 
 
-                const responseMessageCount = await fetchWithAuth(
-                    `${process.env.NEXT_PUBLIC_API_URL}/increment_user_messages`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                    }
-                );
+                // const responseMessageCount = await fetchWithAuth(
+                //     `increment_user_messages`,
+                //     {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //     }
+                // );
                 // const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
                 //     // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
                 //     , { headers: { "Authorization": `Bearer ${jwtToken}` } }
@@ -134,7 +134,7 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
     const handleCheckout = async () => {
         try {
             const response = await fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`,
+                `create-checkout-session`,
                 {
                     method: 'POST',
                     headers: {

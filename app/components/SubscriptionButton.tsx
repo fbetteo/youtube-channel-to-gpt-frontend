@@ -21,7 +21,7 @@ const SubscriptionButton = () => {
             const userData = await fetchUserData();
 
             const response = await fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/create-checkout-session`,
+                `create-checkout-session`,
                 {
                     method: 'POST',
                     headers: {

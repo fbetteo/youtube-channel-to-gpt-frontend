@@ -13,7 +13,7 @@ const CancelSubscriptionButton = () => {
         setIsLoading(true);
         try {
             const response = await fetchWithAuth(
-                `${process.env.NEXT_PUBLIC_API_URL}/cancel-subscription`,
+                `cancel-subscription`,
                 {
                     method: 'POST',
                     headers: {

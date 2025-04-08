@@ -32,7 +32,7 @@ const Page: React.FC = () => {
     const welcomeBg = useColorModeValue('gray.50', 'gray.800');
 
     useEffect(() => {
-        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/assistants-protected')
+        fetchWithAuth('/assistants-protected')
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -52,7 +52,7 @@ const Page: React.FC = () => {
                 modifyThread({ thread_id: "", thread_name: "" })
                 return;
             }
-            fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`)
+            fetchWithAuth(`/threads/${assistant_zustand.name}`)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
@@ -68,7 +68,7 @@ const Page: React.FC = () => {
     }, [assistant_zustand.name, modifyThreads, modifyThread]);
 
     useEffect(() => {
-        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + `/threads/${assistant_zustand.name}`)
+        fetchWithAuth(`/threads/${assistant_zustand.name}`)
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -84,7 +84,7 @@ const Page: React.FC = () => {
             setMessages([]);
             return;
         }
-        fetchWithAuth(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_zustand.id + '/' + thread_zustand.thread_id)
+        fetchWithAuth('/messages/' + assistant_zustand.id + '/' + thread_zustand.thread_id)
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -126,7 +126,7 @@ const Page: React.FC = () => {
     const handleNewChat = async () => {
         try {
             const response = await fetchWithAuth(
-                process.env.NEXT_PUBLIC_API_URL + '/threads/' + assistant_zustand.name,
+                '/threads/' + assistant_zustand.name,
                 {
                     method: 'POST',
                     headers: {
