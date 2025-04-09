@@ -11,7 +11,7 @@ export async function fetchUserData(): Promise<UserData | undefined> {
       }
       
       // Use the fetchWithAuth utility to get user data
-      const response = await fetchWithAuth(`get_user_data`);
+      const response = await fetchWithAuth(`/get_user_data`);
       
       if (response.ok) {
         return await response.json();

@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import styles from './form.module.css'
 import { useToast, Button } from '@chakra-ui/react';
@@ -11,6 +10,7 @@ import BackHomeButton from '../components/BackHomeButton';
 import { Tooltip, IconButton, Image } from '@chakra-ui/react';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
 import { Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody } from '@chakra-ui/react';
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 const CreateAssistant = () => {
     const router = useRouter();
@@ -46,13 +46,22 @@ const CreateAssistant = () => {
         setIsLoading(true); // Set loading state
 
         try {
-            const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/assistants/' + assistantName, null, {
-                params: {
-                    channel_name: channelName
+            const response = await fetchWithAuth(`/assistants/${assistantName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    channel_name: channelName,
                     // Include additional data as needed
-                }, headers: { "Authorization": `Bearer ${jwtToken}` }
+                }),
             });
-            console.log('Assistant created:', response.data);
+            if (!response.ok) {
+                throw new Error('Failed to create assistant');
+            }
+
+            const data = await response.json();
+            console.log('Assistant created:', data);
             toast({
                 title: 'Assistant created successfully!',
                 description: "Everything looks good",

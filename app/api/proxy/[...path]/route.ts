@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
-    const backendUrl = `https://youtube-channel-to-gpt.onrender.com/${params.path.join('/')}`;
+    const backendUrl = `${process.env.BACKEND_URL}/${params.path.join('/')}`;
     const token = req.headers.get('Authorization');
 
     const response = await fetch(backendUrl, {
@@ -15,10 +15,20 @@ export async function GET(req: NextRequest, { params }: { params: { path: string
     return NextResponse.json(data, { status: response.status });
 }
 
+
 export async function POST(req: NextRequest, { params }: { params: { path: string[] } }) {
-    const backendUrl = `https://youtube-channel-to-gpt.onrender.com/${params.path.join('/')}`;
+    const backendUrl = `${process.env.BACKEND_URL}/${params.path.join('/')}`;
     const token = req.headers.get('Authorization');
-    const body = await req.json();
+
+    let body = null;
+    try {
+        // Attempt to parse the body only if it exists
+        if (req.body) {
+            body = await req.json();
+        }
+    } catch (error) {
+        console.error('Error parsing request body:', error);
+    }
 
     const response = await fetch(backendUrl, {
         method: 'POST',
@@ -26,9 +36,16 @@ export async function POST(req: NextRequest, { params }: { params: { path: strin
             'Content-Type': 'application/json',
             Authorization: token || '',
         },
-        body: JSON.stringify(body),
+        body: body ? JSON.stringify(body) : undefined, // Only include body if it exists
     });
 
-    const data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        console.error('Error parsing response body:', error);
+        data = { error: 'Invalid JSON response from backend' };
+    }
+
     return NextResponse.json(data, { status: response.status });
 }

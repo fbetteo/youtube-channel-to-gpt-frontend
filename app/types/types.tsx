@@ -14,6 +14,7 @@ export interface UserData {
     email: string;
     subscription: string;
     count_messages: number;
+    remaining_messages: number;
 }
 
 

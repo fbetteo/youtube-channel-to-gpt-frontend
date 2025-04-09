@@ -59,10 +59,12 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
         console.log("Thread ID:", thread_id);
         setLoading(true);
         setUuid(userData?.uuid);
+        console.log("User data:", userData);
+        console.log("User UUID:", uuid);
 
 
 
-        if (userData?.subscription === 'free' && userData?.count_messages >= 3) {
+        if (!userData?.remaining_messages || userData.remaining_messages < 1) {
             setModalOpen(true);
 
         }
@@ -77,12 +79,13 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
                 //     }, headers: { "Authorization": `Bearer ${jwtToken}` }
                 // });
                 const response = await fetchWithAuth(
-                    `messages/${assistant_id}/${thread_id}?content=${encodeURIComponent(inputValue)}`,
+                    `/messages/${assistant_id}/${thread_id}`,
                     {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
+                        body: JSON.stringify({ content: inputValue }),
                     }
                 );
 
@@ -132,9 +135,12 @@ const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
 
 
     const handleCheckout = async () => {
+        console.log("Handling checkout for user:", uuid);
+        // sleep
+        await new Promise(resolve => setTimeout(resolve, 1000));
         try {
             const response = await fetchWithAuth(
-                `create-checkout-session`,
+                `/create-checkout-session`,
                 {
                     method: 'POST',
                     headers: {

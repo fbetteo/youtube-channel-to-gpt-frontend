@@ -19,9 +19,22 @@ const SubscriptionButton = () => {
         setIsLoading(true);
         try {
             const userData = await fetchUserData();
+            console.log(userData + "user data in subscription button")
+            // sleep so I can see the log
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!userData) {
+                toast({
+                    title: 'Error',
+                    description: 'User data not found. Please log in again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                });
+                return;
+            }
 
             const response = await fetchWithAuth(
-                `create-checkout-session`,
+                `/create-checkout-session`,
                 {
                     method: 'POST',
                     headers: {

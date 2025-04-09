@@ -124,6 +124,12 @@ const Page: React.FC = () => {
     };
 
     const handleNewChat = async () => {
+        console.log("Creating new chat")
+        console.log(assistant_zustand.name)
+        if (!assistant_zustand.name) {
+            console.error("No assistant selected");
+            return;
+        }
         try {
             const response = await fetchWithAuth(
                 '/threads/' + assistant_zustand.name,
@@ -132,7 +138,6 @@ const Page: React.FC = () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: null
                 }
             );
 
