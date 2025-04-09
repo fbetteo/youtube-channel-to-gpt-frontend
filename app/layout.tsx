@@ -29,6 +29,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
+import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header'; // Make sure the path is correct
 import { CSPostHogProvider } from './providers'
 const inter = Inter({ subsets: ['latin'] });
@@ -52,10 +53,12 @@ export default function RootLayout({
       <CSPostHogProvider>
         <body className={inter.className}>
           <ChakraProvider>
-            {/* Header component included here, it will be displayed on every page */}
-            <Header />
-            {/* This is where the content of your pages will be rendered */}
-            <main style={{ paddingTop: '4rem' }}>{children}</main>
+            <AuthProvider>
+              {/* Header component included here, it will be displayed on every page */}
+              <Header />
+              {/* This is where the content of your pages will be rendered */}
+              <main style={{ paddingTop: '4rem' }}>{children}</main>
+            </AuthProvider>
           </ChakraProvider>
         </body>
       </CSPostHogProvider>

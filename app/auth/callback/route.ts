@@ -1,20 +1,40 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
-import type { NextRequest } from 'next/server'
-import type { Database } from '../../../database.types'
+export async function GET(request: Request) {
+    const requestUrl = new URL(request.url)
+    const code = requestUrl.searchParams.get('code')
 
-export async function GET(request: NextRequest) {
-  const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get('code')
+    if (code) {
+        const cookieStore = cookies()
+        
+        // Create a Supabase client with cookie handling
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                auth: {
+                    flowType: 'pkce',
+                    autoRefreshToken: false,
+                    detectSessionInUrl: false,
+                    persistSession: false,
+                }
+            }
+        )
+        
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+        
+        if (!error && data?.session) {
+            // Set cookies manually
+            cookieStore.set('supabase-auth-token', JSON.stringify([data.session.access_token, data.session.refresh_token]), {
+                path: '/',
+                maxAge: data.session.expires_in,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+            })
+        }
+    }
 
-  if (code) {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
-    await supabase.auth.exchangeCodeForSession(code)
-  }
-
-  // URL to redirect to after sign in process completes
-  return NextResponse.redirect(requestUrl.origin)
+    return NextResponse.redirect(requestUrl.origin)
 }

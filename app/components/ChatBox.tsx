@@ -1,7 +1,6 @@
-import { Box, Input, Button, useToast, Text } from '@chakra-ui/react';
-import axios from 'axios';
+import { Box, Input, Button, useToast, Text, Flex, Container, InputGroup, InputRightElement, VStack } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
-import checkSession from '../utils/checkSession';
+// import checkSession from '../utils/checkSession';
 import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter, useColorModeValue, List,
     ListItem,
@@ -9,6 +8,11 @@ import {
 } from '@chakra-ui/react';
 import { InfoIcon, CheckCircleIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/navigation';
+import { fetchWithAuth } from '@/app/lib/fetchWithAuth';
+import { fetchUserData } from '@/app/lib/fetchUserData';
+import ChatMessage from './ChatMessage';
+import SubscriptionModal from './SubscriptionModal';
+
 interface Message {
     id: number;
     role: string;
@@ -18,11 +22,11 @@ interface Message {
 interface Props {
     thread_id: string;
     assistant_id: string;
-    jwtToken: string;
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    messages: Message[]; // Add this prop
 }
 
-const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
+const ChatBox = ({ thread_id, assistant_id, setMessages, messages }: Props) => {
     // State to hold the input value
     const router = useRouter();
     const [inputValue, setInputValue] = useState('');
@@ -50,41 +54,61 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     // Function to handle the send button click
     const handleSendClick = async () => {
         // Here, you can add the logic to process the message, like sending it to a server
-        const sessioncheck = await checkSession();
+        const userData = await fetchUserData();
         console.log("Sending message:", inputValue);
         console.log("Thread ID:", thread_id);
         setLoading(true);
-        setUuid(sessioncheck?.userData.uuid);
+        setUuid(userData?.uuid);
+        console.log("User data:", userData);
+        console.log("User UUID:", uuid);
 
 
 
-        if (sessioncheck?.userData.subscription === 'free' && sessioncheck?.userData.count_messages >= 3) {
+        if (!userData?.remaining_messages || userData.remaining_messages < 1) {
             setModalOpen(true);
 
         }
 
         else {
             try {
-                const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
+                // const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/messages/' + assistant_id + "/" + thread_id, null, {
 
-                    params: {
-                        content: inputValue
-                        // Include additional data as needed
-                    }, headers: { "Authorization": `Bearer ${jwtToken}` }
-                });
+                //     params: {
+                //         content: inputValue
+                //         // Include additional data as needed
+                //     }, headers: { "Authorization": `Bearer ${jwtToken}` }
+                // });
+                const response = await fetchWithAuth(
+                    `/messages/${assistant_id}/${thread_id}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ content: inputValue }),
+                    }
+                );
 
-
+                const responseData = await response.json();
                 // Resetting input field after send
                 setInputValue('');
-                console.log('Message sent:', response.data);
-                setMessages(response.data);
+                console.log('Message sent:', responseData);
+                setMessages(responseData);
 
 
-
-                const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
-                    // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
-                    , { headers: { "Authorization": `Bearer ${jwtToken}` } }
-                );
+                // const responseMessageCount = await fetchWithAuth(
+                //     `increment_user_messages`,
+                //     {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //     }
+                // );
+                // const responseMessageCount = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/increment_user_messages', null
+                //     // I'm using sessioncheck because I had issues with jwtToken_zustand being undefined because it took longer to update the global store. I think now it works both ways but I'm not sure.
+                //     , { headers: { "Authorization": `Bearer ${jwtToken}` } }
+                // );
 
                 // Providing feedback to the user
                 setLoading(false);
@@ -111,12 +135,41 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
 
 
     const handleCheckout = async () => {
-        // Call backend to create a Stripe checkout session
-        const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + '/create-checkout-session', { user_uuid: uuid }, { headers: { "Authorization": `Bearer ${jwtToken}` } });
-        if (response.data.url) {
-            setCheckoutUrl(response.data.url);  // Trigger redirection via useEffect
-        } else {
-            // Handle error (e.g., show an error message)
+        console.log("Handling checkout for user:", uuid);
+        // sleep
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const response = await fetchWithAuth(
+                `/create-checkout-session`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_uuid: uuid })
+                }
+            );
+            const responseData = await response.json();
+            console.log("Checkout response:", responseData); // Log the response to see its structure
+
+            // Check if the URL exists in the expected structure, or alternative structures
+            if (responseData?.data?.url) {
+                setCheckoutUrl(responseData.data.url);
+            } else if (responseData?.url) {
+                setCheckoutUrl(responseData.url);
+            } else {
+                // Handle error (e.g., show an error message)
+                toast({
+                    title: 'An error occurred.',
+                    description: 'Unable to create checkout session. Please try again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                    position: 'top',
+                });
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
             toast({
                 title: 'An error occurred.',
                 description: 'Unable to create checkout session. Please try again.',
@@ -129,98 +182,86 @@ const ChatBox = ({ thread_id, assistant_id, jwtToken, setMessages }: Props) => {
     };
 
     return (
-        <Box mt={4}>
-            <Input
-                placeholder="Type your message here..."
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                        handleSendClick();
-                    }
-                }}
+        <Container maxW="container.xl" h="calc(100vh - 100px)" p={4}>
+            <Flex direction="column" h="100%" position="relative">
+                <Box
+                    flex="1"
+                    mb={4}
+                    overflowY="auto"
+                    borderRadius="md"
+                    bg={useColorModeValue('gray.50', 'gray.700')}
+                    p={4}
+                    css={{
+                        '&::-webkit-scrollbar': {
+                            width: '4px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            background: useColorModeValue('gray.300', 'gray.600'),
+                            borderRadius: '24px',
+                        },
+                    }}
+                >
+                    <VStack spacing={4} align="stretch">
+                        {messages?.map((message) => (
+                            <ChatMessage
+                                key={message.id}
+                                role={message.role}
+                                text={message.text}
+                            />
+                        ))}
+                    </VStack>
+                </Box>
+
+                <Box
+                    position="sticky"
+                    bottom={0}
+                    bg={useColorModeValue('white', 'gray.800')}
+                    p={4}
+                    borderTopWidth="1px"
+                    borderRadius="md"
+                    boxShadow="sm"
+                >
+                    <Flex gap={2}>
+                        <InputGroup size="lg">
+                            <Input
+                                placeholder="Type your message here..."
+                                value={inputValue}
+                                onChange={handleInputChange}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' && !event.shiftKey) {
+                                        handleSendClick();
+                                    }
+                                }}
+                                pr="4.5rem"
+                                bg={useColorModeValue('white', 'gray.700')}
+                            />
+                            <InputRightElement width="4.5rem" pr={1}>
+                                <Button
+                                    h="1.75rem"
+                                    size="sm"
+                                    colorScheme="blue"
+                                    isLoading={loading}
+                                    loadingText="Sending..."
+                                    onClick={handleSendClick}
+                                >
+                                    Send
+                                </Button>
+                            </InputRightElement>
+                        </InputGroup>
+                    </Flex>
+                </Box>
+            </Flex>
+
+            <SubscriptionModal
+                isOpen={isModalOpen}
+                onClose={() => { setModalOpen(false); setLoading(false); }}
+                onSubscribe={handleCheckout}
+                onLearnMore={() => router.push("/faq")}
             />
-            <Button
-                colorScheme="blue"
-                mt={2}
-                isLoading={loading}
-                loadingText="Answering your question..."
-                onClick={() => { handleSendClick(); }}
-            >
-                Send
-            </Button>
-            {/* <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
-                <ModalOverlay />
-                <ModalContent backgroundColor={modalBackground}>
-                    <ModalHeader fontSize="lg" fontWeight="bold">Action Limit Reached</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Box display="flex" alignItems="center" marginBottom={4}>
-                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
-                            <Text fontSize="md">
-                                You've reached your maximum number of free actions. Upgrade now to continue without interruption.
-                            </Text>
-                        </Box>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="red" mr={3} size="lg" onClick={handleCheckout}>
-                            Subscribe Now
-                        </Button>
-                        <Button variant="ghost" onClick={() => setModalOpen(false)}>
-                            Learn More
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal> */}
-            <Modal isOpen={isModalOpen} onClose={() => { setModalOpen(false); setLoading(false); }} isCentered>
-                <ModalOverlay />
-                <ModalContent backgroundColor={modalBackground}>
-                    <ModalHeader fontSize="lg" fontWeight="bold">Free trial finished</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Box display="flex" alignItems="center" marginBottom={4}>
-                            <InfoIcon color="blue.500" w={8} h={8} mr={2} />
-                            <Text fontSize="md">
-                                You have reached your maximum number of free actions. Upgrade now to continue getting the most of Youtube without interruption.
-                            </Text>
-                        </Box>
-                        <Box backgroundColor={useColorModeValue('blue.50', 'blue.900')} p={4} borderRadius="lg">
-                            <Text fontSize="md" fontWeight="bold" mb={2}>Benefits of Subscribing:</Text>
-                            <List spacing={2}>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Access up to 3 different Youtube channels
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Send up to 100 messages per month
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Unlimited access to new features
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Direct support from our team
-                                </ListItem>
-                                <ListItem>
-                                    <ListIcon as={CheckCircleIcon} color="green.500" />
-                                    Cancel anytime
-                                </ListItem>
-                            </List>
-                        </Box>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="blue" mr={3} size="lg" onClick={handleCheckout}>
-                            Subscribe Now
-                        </Button>
-                        <Button variant="ghost" onClick={() => router.push("/faq")}>
-                            Learn More
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </Box>
+        </Container>
     );
 };
 
