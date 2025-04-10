@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useGlobalStore } from '../store/store';
 import { supabase } from '@/app/lib/supabase/client'
+import { fetchWithAuth } from '../lib/fetchWithAuth';
 
 const SignUpForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -43,6 +44,27 @@ const SignUpForm: React.FC = () => {
             //     emailRedirectTo: process.env.NEXT_PUBLIC_FRONTEND_URL,
             // },
         });
+
+        const response = await fetchWithAuth('/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        })
+
+        if (response.status !== 200) {
+            console.error("Error creating user in database", response.status, response.statusText)
+            toast({
+                title: 'Error creating user in database.',
+                description: response.statusText,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            });
+        }
 
         // console.log(error + "error")
 
