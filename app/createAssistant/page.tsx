@@ -46,16 +46,20 @@ const CreateAssistant = () => {
         setIsLoading(true); // Set loading state
 
         try {
-            const response = await fetchWithAuth(`/assistants/${assistantName}`, {
+            const backendUrl = `${process.env.BACKEND_URL}/assistants/${assistantName}`;
+
+            const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwtToken}`,
                 },
                 body: JSON.stringify({
                     channel_name: channelName,
                     // Include additional data as needed
                 }),
             });
+
             if (!response.ok) {
                 throw new Error('Failed to create assistant');
             }
@@ -69,10 +73,9 @@ const CreateAssistant = () => {
                 duration: 5000,
                 isClosable: true,
                 position: 'top',
-            })
+            });
             await new Promise(resolve => setTimeout(resolve, 2000));
             router.push('/');
-            // Redirect to a success page or another page of choice
         } catch (error) {
             console.error('Submission error:', error);
             toast({
@@ -83,7 +86,6 @@ const CreateAssistant = () => {
                 isClosable: true,
                 position: 'top',
             });
-            // Handle error (e.g., show error message)
         } finally {
             setIsLoading(false); // Stop loading regardless of success or failure
         }

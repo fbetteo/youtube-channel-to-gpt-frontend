@@ -120,10 +120,17 @@ const Header = () => {
                     bg={navBg}
                     divider={<Box borderBottom="1px" borderColor={dividerColor} w="100%" />}
                 >
-                    <Button w="full" variant="ghost" onClick={() => router.push('/faq')}>
+                    <Button w="full" variant="ghost" onClick={() => {
+                        router.push('/faq');
+                        onToggle();
+                    }
+                    }>
                         FAQ
                     </Button>
-                    <Button w="full" onClick={toggleColorMode} variant="ghost">
+                    <Button w="full" onClick={() => {
+                        toggleColorMode();
+                        onToggle(); // Close the menu
+                    }} variant="ghost">
                         {colorMode === 'light' ? 'Dark Mode' : 'Light Mode'}
                     </Button>
                     {!isAuthenticated ? (
@@ -132,14 +139,20 @@ const Header = () => {
                                 w="full"
                                 variant="outline"
                                 colorScheme="blue"
-                                onClick={() => router.push('/signin')}
+                                onClick={() => {
+                                    router.push('/signin');
+                                    onToggle(); // Close the menu
+                                }}
                             >
                                 Sign In
                             </Button>
                             <Button
                                 w="full"
                                 colorScheme="blue"
-                                onClick={() => router.push('/signup')}
+                                onClick={() => {
+                                    router.push('/signup');
+                                    onToggle(); // Close the menu
+                                }}
                             >
                                 Sign Up
                             </Button>
@@ -149,7 +162,10 @@ const Header = () => {
                             <Button
                                 w="full"
                                 variant="ghost"
-                                onClick={() => router.push('/settings')}
+                                onClick={() => {
+                                    router.push('/settings');
+                                    onToggle(); // Close the menu
+                                }}
                             >
                                 Settings
                             </Button>
@@ -157,7 +173,10 @@ const Header = () => {
                                 w="full"
                                 colorScheme="red"
                                 variant="ghost"
-                                onClick={() => router.push('/signout')}
+                                onClick={() => {
+                                    router.push('/signout');
+                                    onToggle(); // Close the menu
+                                }}
                             >
                                 Sign Out
                             </Button>
