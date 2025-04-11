@@ -52,6 +52,8 @@ const SignUpForm: React.FC = () => {
             },
             body: JSON.stringify({
                 email: email,
+                subscription: "",
+                remaining_messages: 3
             }),
         })
 
@@ -82,8 +84,8 @@ const SignUpForm: React.FC = () => {
         //     , { headers: { "Authorization": `Bearer ${sessioncheck?.jwtToken}` } }
         // );
 
-        // if (error || response.status !== 200) {
-        if (error) {
+        if (error || response.status !== 200) {
+            // if (error) {
 
             toast({
                 title: 'Error signing up.',
